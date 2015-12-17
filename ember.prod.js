@@ -32,6 +32,9 @@ Em._eager = ["ember-metal/debug","ember-metal/core","ember-metal/assign","ember-
     registry: registry,
     seen: seen,
     define: function define(name, deps, callback) {
+      loader._define(name, deps, callback);
+    },
+    _define: function define(name, deps, callback) {
       this.registry[name] = {
         deps: deps,
         callback: callback
@@ -77,7 +80,7 @@ Em._eager = ["ember-metal/debug","ember-metal/core","ember-metal/assign","ember-
   Em.__loader = loader;
 })();
 
-Em.__loader.define("container", ["exports","ember-metal/core","container/registry","container/container"], function (exports, _emberMetalCore, _containerRegistry, _containerContainer) {
+Em.__loader._define("container", ["exports","ember-metal/core","container/registry","container/container"], function (exports, _emberMetalCore, _containerRegistry, _containerContainer) {
   'use strict';
 
   /*
@@ -101,7 +104,7 @@ Em.__loader.define("container", ["exports","ember-metal/core","container/registr
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
 });
-Em.__loader.define("dag-map/platform", ["exports"], function (exports) {
+Em.__loader._define("dag-map/platform", ["exports"], function (exports) {
   'use strict';
 
   var platform;
@@ -119,7 +122,7 @@ Em.__loader.define("dag-map/platform", ["exports"], function (exports) {
 
   exports.default = platform;
 });
-Em.__loader.define("ember-htmlbars/system/append-templated-view", ["exports","ember-metal/debug","ember-metal/property_get","ember-views/views/view"], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberViewsViewsView) {
+Em.__loader._define("ember-htmlbars/system/append-templated-view", ["exports","ember-metal/debug","ember-metal/property_get","ember-views/views/view"], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberViewsViewsView) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -153,7 +156,7 @@ Em.__loader.define("ember-htmlbars/system/append-templated-view", ["exports","em
     return parentView.appendChild(viewClassOrInstance, props);
   }
 });
-Em.__loader.define("ember-htmlbars/templates/component", ["exports","ember-template-compiler/system/template"], function (exports, _emberTemplateCompilerSystemTemplate) {
+Em.__loader._define("ember-htmlbars/templates/component", ["exports","ember-template-compiler/system/template"], function (exports, _emberTemplateCompilerSystemTemplate) {
   "use strict";
 
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
@@ -182,7 +185,7 @@ Em.__loader.define("ember-htmlbars/templates/component", ["exports","ember-templ
     };
   })());
 });
-Em.__loader.define("ember-htmlbars/templates/empty", ["exports","ember-template-compiler/system/template"], function (exports, _emberTemplateCompilerSystemTemplate) {
+Em.__loader._define("ember-htmlbars/templates/empty", ["exports","ember-template-compiler/system/template"], function (exports, _emberTemplateCompilerSystemTemplate) {
   "use strict";
 
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
@@ -205,7 +208,7 @@ Em.__loader.define("ember-htmlbars/templates/empty", ["exports","ember-template-
     };
   })());
 });
-Em.__loader.define("ember-htmlbars/utils/new-stream", ["exports","ember-metal/streams/proxy-stream","ember-htmlbars/utils/subscribe"], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+Em.__loader._define("ember-htmlbars/utils/new-stream", ["exports","ember-metal/streams/proxy-stream","ember-htmlbars/utils/subscribe"], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
   'use strict';
 
   exports.default = newStream;
@@ -218,7 +221,7 @@ Em.__loader.define("ember-htmlbars/utils/new-stream", ["exports","ember-metal/st
     scope[key] = stream;
   }
 });
-Em.__loader.define("ember-htmlbars/utils/update-scope", ["exports","ember-metal/streams/proxy-stream","ember-htmlbars/utils/subscribe"], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+Em.__loader._define("ember-htmlbars/utils/update-scope", ["exports","ember-metal/streams/proxy-stream","ember-htmlbars/utils/subscribe"], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
   'use strict';
 
   exports.default = updateScope;
@@ -237,17 +240,17 @@ Em.__loader.define("ember-htmlbars/utils/update-scope", ["exports","ember-metal/
     }
   }
 });
-Em.__loader.define("ember-metal-views", ["exports","ember-metal-views/renderer"], function (exports, _emberMetalViewsRenderer) {
+Em.__loader._define("ember-metal-views", ["exports","ember-metal-views/renderer"], function (exports, _emberMetalViewsRenderer) {
   'use strict';
 
   exports.Renderer = _emberMetalViewsRenderer.default;
 });
-Em.__loader.define("ember-runtime/system/application", ["exports","ember-runtime/system/namespace"], function (exports, _emberRuntimeSystemNamespace) {
+Em.__loader._define("ember-runtime/system/application", ["exports","ember-runtime/system/namespace"], function (exports, _emberRuntimeSystemNamespace) {
   'use strict';
 
   exports.default = _emberRuntimeSystemNamespace.default.extend();
 });
-Em.__loader.define("ember-template-compiler/plugins/transform-each-in-to-hash", ["exports"], function (exports) {
+Em.__loader._define("ember-template-compiler/plugins/transform-each-in-to-hash", ["exports"], function (exports) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -316,7 +319,7 @@ Em.__loader.define("ember-template-compiler/plugins/transform-each-in-to-hash", 
 
   exports.default = TransformEachInToHash;
 });
-Em.__loader.define("ember-views/streams/class_name_binding", ["exports","ember-metal/debug","ember-metal/property_get","ember-metal/utils","ember-metal/streams/utils","ember-runtime/system/string"], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalUtils, _emberMetalStreamsUtils, _emberRuntimeSystemString) {
+Em.__loader._define("ember-views/streams/class_name_binding", ["exports","ember-metal/debug","ember-metal/property_get","ember-metal/utils","ember-metal/streams/utils","ember-runtime/system/string"], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalUtils, _emberMetalStreamsUtils, _emberRuntimeSystemString) {
   'use strict';
 
   exports.parsePropertyPath = parsePropertyPath;
@@ -446,7 +449,7 @@ Em.__loader.define("ember-views/streams/class_name_binding", ["exports","ember-m
     }
   }
 });
-Em.__loader.define("ember-views/system/platform", ["exports","ember-metal/environment"], function (exports, _emberMetalEnvironment) {
+Em.__loader._define("ember-views/system/platform", ["exports","ember-metal/environment"], function (exports, _emberMetalEnvironment) {
   'use strict';
 
   // IE 6/7 have bugs around setting names on inputs during creation.
@@ -463,7 +466,7 @@ Em.__loader.define("ember-views/system/platform", ["exports","ember-metal/enviro
   })();
   exports.canSetNameOnInputs = canSetNameOnInputs;
 });
-Em.__loader.define("htmlbars-util/quoting", ["exports"], function (exports) {
+Em.__loader._define("htmlbars-util/quoting", ["exports"], function (exports) {
   "use strict";
 
   exports.hash = hash;
@@ -501,7 +504,7 @@ Em.__loader.define("htmlbars-util/quoting", ["exports"], function (exports) {
     return str;
   }
 });
-Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
+Em.__loader._define("rsvp/platform", ["exports"], function (exports) {
   'use strict';
 
   var platform;
