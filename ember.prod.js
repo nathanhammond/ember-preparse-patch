@@ -21798,7 +21798,7 @@ Em.__loader._define("rsvp/platform", ["exports"], function (exports) {
 
   if (_emberMetalEnvironment.default.hasDOM) {
     // Em.__global is set in `package/loader/lib/main.js` to the `this` context before entering strict mode
-    jQuery = _emberMetalCore.default.imports && _emberMetalCore.default.imports.jQuery || Em.__global && mainContext.jQuery; //jshint ignore:line
+    jQuery = _emberMetalCore.default.imports && _emberMetalCore.default.imports.jQuery || Em.__global && Em.__global.jQuery; //jshint ignore:line
     if (!jQuery && typeof require === 'function') {
       jQuery =Em.__loader.require('jquery');
     }

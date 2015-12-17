@@ -982,7 +982,7 @@ Em.__loader._define("ember-testing/setup_for_testing", ["exports","ember-metal/c
 
   function setupForTesting() {
     if (!Test) {
-      Test = requireModule('ember-testing/test')['default'];
+      Test =Em.__loader.require('ember-testing/test')['default'];
     }
 
     _emberMetalCore.default.testing = true;
@@ -23687,7 +23687,7 @@ Em.__loader._define("rsvp/platform", ["exports"], function (exports) {
 
   if (_emberMetalEnvironment.default.hasDOM) {
     // Em.__global is set in `package/loader/lib/main.js` to the `this` context before entering strict mode
-    jQuery = _emberMetalCore.default.imports && _emberMetalCore.default.imports.jQuery || Em.__global && mainContext.jQuery; //jshint ignore:line
+    jQuery = _emberMetalCore.default.imports && _emberMetalCore.default.imports.jQuery || Em.__global && Em.__global.jQuery; //jshint ignore:line
     if (!jQuery && typeof require === 'function') {
       jQuery =Em.__loader.require('jquery');
     }
