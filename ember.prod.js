@@ -40,13 +40,8 @@ Em._eager = ["require","ember-metal/debug","ember-metal/core","ember-metal/assig
         callback: callback
       };
     },
-    require: {
-      default: function (name) {
-        return loader._require(name, undefined);
-      },
-      has: function(name) {
-        return !!loader.registry[name];
-      }
+    require: function (name) {
+      return loader._require(name, undefined);
     },
     _require: function require(name, referrerName) {
       var exports = this.seen[name];
@@ -57,6 +52,12 @@ Em._eager = ["require","ember-metal/debug","ember-metal/core","ember-metal/assig
       exports = this.seen[name] = { default: undefined };
 
       var mod = this.registry[name];
+
+      if (!mod) {
+        name = name + '/index';
+        mod = registry[name];
+      }
+
       if (mod === undefined) {
         if (referrerName) {
           throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -82,6 +83,12 @@ Em._eager = ["require","ember-metal/debug","ember-metal/core","ember-metal/assig
       return exports;
     }
   };
+
+  loader.require['default'] = loader.require;
+  loader.require.has = function(name) {
+    return !!loader.registry[name];
+  };
+
   Em.__loader = loader;
 })();
 
