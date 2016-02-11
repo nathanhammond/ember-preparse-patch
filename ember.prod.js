@@ -5,126 +5,91 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+58f5a9aa
+ * @version   2.5.0-canary+fa0dae46
  */
 if (typeof Ember === 'undefined') { Em = Ember = {}; }
 Em.__global = this
 Em._eager = ["require","ember-metal/debug","ember-metal/core","ember-metal/assign","ember-metal/features","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/meta_listeners","ember-metal/empty_object","ember-metal/meta","ember-metal/error","ember-metal/cache","ember-metal/logger","ember-metal/path_cache","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/symbol","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/dependent_keys","ember-metal/computed","ember-metal/alias","ember-metal/is_none","ember-metal/is_empty","ember-metal/computed_macros","ember-metal/observer","backburner/utils","backburner/platform","backburner/binary-search","backburner/queue","backburner/deferred-action-queues","backburner","ember-metal/run_loop","ember-metal/binding","ember-metal/streams/subscriber","ember-metal/streams/dependency","ember-metal/streams/stream","ember-metal/streams/utils","ember-metal/mixin","ember-metal/libraries","ember-metal/is_blank","ember-metal/is_present","ember-metal/index","ember-runtime/is-equal","ember-runtime/mixins/enumerable","ember-runtime/system/each_proxy","ember-runtime/mixins/array","ember-runtime/mixins/action_handler","container/owner","ember-metal/injected_property","ember-runtime/inject","ember-runtime/system/core_object","ember-runtime/mixins/observable","ember-runtime/system/object","ember-runtime/utils","ember-runtime/mixins/comparable","ember-runtime/compare","ember-runtime/mixins/freezable","ember-runtime/mixins/copyable","ember-runtime/copy","ember-runtime/system/namespace","ember-metal/dictionary","ember-runtime/mixins/container_proxy","container/container","container/registry","ember-runtime/system/container","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/mutable_array","ember-runtime/system/array_proxy","ember-runtime/mixins/-proxy","ember-runtime/system/object_proxy","ember-metal/replace","ember-runtime/system/native_array","ember-runtime/string_registry","ember-runtime/system/string","ember-runtime/system/lazy_load","ember-runtime/mixins/target_action_support","ember-runtime/mixins/evented","ember-runtime/mixins/promise_proxy","ember-runtime/computed/reduce_computed_macros","ember-runtime/mixins/controller_content_model_alias_deprecation","ember-runtime/mixins/controller","ember-runtime/controllers/controller","ember-runtime/system/service","rsvp/events","rsvp/config","rsvp/utils","rsvp/instrument","rsvp/-internal","rsvp/enumerator","rsvp/promise/all","rsvp/promise/race","rsvp/promise/resolve","rsvp/promise/reject","rsvp/promise","rsvp/node","rsvp/all","rsvp/all-settled","rsvp/race","rsvp/promise-hash","rsvp/hash","rsvp/hash-settled","rsvp/rethrow","rsvp/defer","rsvp/map","rsvp/resolve","rsvp/reject","rsvp/filter","rsvp/asap","rsvp","ember-runtime/ext/rsvp","ember-runtime/ext/string","ember-runtime/ext/function","ember-runtime/mixins/registry_proxy","ember-runtime/index","ember-metal/environment","ember-views/system/jquery","ember-views/system/utils","ember-views/system/ext","ember-views/compat/attrs-proxy","ember-views/views/states/default","ember-views/views/states/pre_render","ember-views/views/states/has_element","ember-views/views/states/in_dom","ember-views/views/states/destroying","ember-views/views/states","htmlbars-util/morph-utils","htmlbars-runtime/expression-visitor","htmlbars-runtime/node-visitor","morph-range/utils","morph-range","htmlbars-runtime/morph","htmlbars-util/template-utils","htmlbars-util/array-utils","htmlbars-util/void-tag-names","htmlbars-runtime/render","morph-range/morph-list","htmlbars-util/object-utils","htmlbars-runtime/hooks","htmlbars-runtime","ember-htmlbars/hooks/get-value","ember-views/system/build-component-template","ember-metal-views/htmlbars-renderer","ember-metal-views/index","ember-views/views/core_view","ember-views/mixins/legacy_view_support","ember-views/mixins/view_context_support","ember-views/mixins/view_child_views_support","ember-views/mixins/legacy_child_views_support","ember-views/mixins/view_state_support","ember-views/mixins/template_rendering_support","ember-views/mixins/class_names_support","ember-views/mixins/instrumentation_support","ember-views/mixins/aria_role_support","ember-views/mixins/visibility_support","ember-views/mixins/view_support","ember-metal/deprecate_property","ember-views/views/view","ember-template-compiler/system/template","ember-htmlbars/templates/container-view","ember-views/views/container_view","ember-views/streams/utils","ember-views/mixins/empty_view_support","ember-views/views/collection_view","ember-views/components/component","ember-views/system/action_manager","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-htmlbars/system/lookup-helper","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-htmlbars/templates/select","ember-htmlbars/templates/select-option","ember-htmlbars/templates/select-optgroup","ember-views/views/select","ember-views/compat/metamorph_view","ember-htmlbars/templates/legacy-each","ember-views/views/legacy_each_view","ember-views/index","ember-routing/ext/run_loop","ember-routing/ext/controller","ember-routing/location/util","ember-routing/location/api","ember-routing/location/none_location","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/system/generate_controller","ember-routing/system/controller_for","ember-routing/system/dsl","ember-routing/utils","ember-routing/system/router_state","route-recognizer/dsl","route-recognizer","router/utils","router/handler-info","router/transition-state","router/transition","router/transition-intent","router/handler-info/resolved-handler-info","router/handler-info/unresolved-handler-info-by-object","router/handler-info/unresolved-handler-info-by-param","router/handler-info/factory","router/transition-intent/named-transition-intent","router/unrecognized-url-error","router/transition-intent/url-transition-intent","router/router","router","ember-routing/system/router","ember-routing/system/route","ember-routing/index","ember-htmlbars/helpers","ember-application/utils/validate-type","ember-htmlbars/template_registry","ember-application/system/resolver","morph-attr/sanitize-attribute-value","dom-helper/prop","dom-helper/build-html-dom","htmlbars-util/handlebars/safe-string","htmlbars-util/safe-string","htmlbars-util/handlebars/utils","htmlbars-util/namespaces","htmlbars-util","morph-attr","dom-helper/classes","dom-helper","ember-htmlbars/morphs/morph","ember-htmlbars/morphs/attr-morph","ember-htmlbars/system/dom-helper","ember-htmlbars/templates/top-level-view","ember-routing-views/views/outlet","ember-routing/system/cache","ember-application/system/engine-instance","ember-application/system/application-instance","ember-metal/streams/proxy-stream","ember-htmlbars/streams/utils","ember-htmlbars/streams/helper-instance","ember-htmlbars/streams/helper-factory","ember-htmlbars/streams/built-in-helper","ember-htmlbars/system/invoke-helper","ember-htmlbars/hooks/subexpr","ember-routing-htmlbars/keywords/closure-action","ember-htmlbars/keywords/mut","ember-htmlbars/hooks/get-cell-or-value","ember-htmlbars/system/instrumentation-support","ember-htmlbars/glimmer-component","ember-htmlbars/utils/extract-positional-params","ember-htmlbars/node-managers/component-node-manager","ember-htmlbars/templates/link-to","ember-routing-views/components/link-to","ember-routing/services/routing","ember-extension-support/container_debug_adapter","vertex","visit","dag-map","ember-application/system/engine","ember-application/system/application","ember-application/index","ember-extension-support/data_adapter","ember-extension-support/index","ember-template-compiler/plugins","ember-template-compiler/system/compile_options","ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/calculate-location-display","ember-template-compiler/plugins/transform-old-binding-syntax","ember-template-compiler/plugins/transform-old-class-binding-syntax","ember-template-compiler/plugins/transform-item-class","ember-template-compiler/plugins/transform-component-attrs-into-mut","ember-template-compiler/plugins/transform-component-curly-to-readonly","ember-template-compiler/plugins/transform-angle-bracket-components","ember-template-compiler/plugins/transform-input-on-to-onEvent","ember-template-compiler/plugins/transform-top-level-components","ember-template-compiler/plugins/transform-each-into-collection","ember-template-compiler/plugins/transform-unescaped-inline-link-to","ember-template-compiler/plugins/assert-no-view-and-controller-paths","ember-template-compiler/plugins/assert-no-view-helper","ember-template-compiler/plugins/assert-no-each-in","ember-template-compiler/compat/precompile","ember-template-compiler/compat","ember-template-compiler/index","ember-htmlbars/helper","ember-htmlbars/system/make_bound_helper","ember-views/streams/should_display","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/with","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/log","ember-htmlbars/utils/decode-each-key","ember-htmlbars/helpers/each","ember-htmlbars/helpers/each-in","ember-htmlbars/helpers/-normalize-class","ember-htmlbars/helpers/concat","ember-htmlbars/helpers/-join-classes","ember-htmlbars/utils/normalize-self","ember-htmlbars/helpers/-legacy-each-with-controller","ember-htmlbars/helpers/-legacy-each-with-keyword","ember-htmlbars/helpers/-html-safe","ember-htmlbars/helpers/hash","ember-htmlbars/system/bootstrap","ember-htmlbars/utils/string","ember-htmlbars/compat","ember-htmlbars/index","ember-htmlbars/keywords","ember-routing/system/query_params","ember-routing-htmlbars/helpers/query-params","ember-routing-htmlbars/keywords/action","ember-routing-htmlbars/keywords/element-action","ember-htmlbars/node-managers/view-node-manager","ember-routing-htmlbars/keywords/render","ember-routing-htmlbars/index","ember-routing-views/index","ember/index","ember-htmlbars/hooks/concat","ember-htmlbars/utils/subscribe","ember-htmlbars/utils/lookup-component","ember-htmlbars/keywords/closure-component","ember-htmlbars/hooks/link-render-node","ember-htmlbars/hooks/create-fresh-scope","ember-htmlbars/hooks/bind-shadow-scope","ember-htmlbars/hooks/bind-self","ember-htmlbars/hooks/bind-scope","ember-htmlbars/hooks/bind-local","ember-htmlbars/hooks/bind-block","ember-htmlbars/hooks/update-self","ember-htmlbars/hooks/get-root","ember-htmlbars/hooks/get-child","ember-htmlbars/hooks/get-block","ember-htmlbars/hooks/cleanup-render-node","ember-htmlbars/hooks/destroy-render-node","ember-htmlbars/hooks/did-render-node","ember-htmlbars/hooks/will-cleanup-tree","ember-htmlbars/hooks/did-cleanup-tree","ember-htmlbars/utils/is-component","ember-htmlbars/hooks/classify","ember-htmlbars/hooks/component","ember-htmlbars/hooks/lookup-helper","ember-htmlbars/hooks/has-helper","ember-htmlbars/hooks/invoke-helper","ember-htmlbars/hooks/element","ember-htmlbars/keywords/debugger","ember-htmlbars/keywords/with","ember-htmlbars/keywords/outlet","ember-htmlbars/keywords/unbound","ember-htmlbars/keywords/view","ember-htmlbars/keywords/component","ember-htmlbars/keywords/element-component","ember-views/system/lookup_partial","ember-htmlbars/keywords/partial","ember-htmlbars/keywords/input","ember-htmlbars/keywords/textarea","ember-htmlbars/keywords/collection","ember-htmlbars/keywords/yield","ember-htmlbars/keywords/legacy-yield","ember-htmlbars/keywords/each","ember-htmlbars/keywords/readonly","ember-htmlbars/keywords/get","ember-htmlbars/env","ember-htmlbars/system/render-env","ember-htmlbars/system/render-view","ember-metal/streams/key-stream"];
-var enifed, requireModule, require, requirejs, Ember;
-var mainContext = this;
-
 (function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
+  'use strict';
+  var seen = {};
+  var registry = {};
+  var empty = {
+    deps: [],
+    callback: function () {}
+  };
+  // eager load
+  var names = Em._eager;
+  var exports = Em._e = new Array(names.length);
+  for (var i = 0; i < names.length; i++) {
+    var name = names[i];
+    exports[i] = seen[name] = { default: undefined };
+    // use an empty entry for checks if a module exists
+    registry[name] = empty;
   }
 
-  if (typeof Ember === 'undefined') { Ember = {}; };
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-var empty = {
-  deps: [],
-  callback: function () {}
-};
-var names = Em._eager;
-var exports = Em._e = new Array(names.length);
-for (var i = 0; i < names.length; i++) {
-  var name = names[i];
-  exports[i] = seen[name] = { default: undefined };
-  // use an empty entry for checks if a module exists
-  registry[name] = empty;
-}
-
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
+  var loader = {
+    registry: registry,
+    seen: seen,
+    define: function define(name, deps, callback) {
+      loader._define(name, deps, callback);
+    },
+    _define: function define(name, deps, callback) {
+      this.registry[name] = {
+        deps: deps,
+        callback: callback
+      };
+    },
+    require: function (name) {
+      return loader._require(name, undefined);
+    },
+    _require: function require(name, referrerName) {
+      var exports = this.seen[name];
+      if (exports !== undefined) {
+        return exports;
       }
 
-      registry[name] = value;
-    };
+      exports = this.seen[name] = { default: undefined };
 
-    requirejs = require = requireModule = function(name) {
-      return internalRequire(name, null);
-    }
-
-    // setup `require` module
-    require['default'] = require;
-
-    require.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
-
-    function missingModule(name, referrerName) {
-      if (referrerName) {
-        throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
-      } else {
-        throw new Error('Could not find module ' + name);
-      }
-    }
-
-    function internalRequire(_name, referrerName) {
-      var name = _name;
-      var mod = registry[name];
+      var mod = this.registry[name];
 
       if (!mod) {
         name = name + '/index';
         mod = registry[name];
       }
 
-      var exports = seen[name];
-
-      if (exports !== undefined) {
-        return exports;
-      }
-
-      exports = seen[name] = {};
-
-      if (!mod) {
-        missingModule(_name, referrerName);
-      }
-
-      var deps = mod.deps;
-      var callback = mod.callback;
-      var length = deps.length;
-      var reified = new Array(length);;
-
-      for (var i = 0; i < length; i++) {
-        if (deps[i] === 'exports') {
-          reified[i] = exports;
-        } else if (deps[i] === 'require') {
-          reified[i] = require;
+      if (mod === undefined) {
+        if (referrerName) {
+          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
         } else {
-          reified[i] = internalRequire(deps[i], name);
+          throw new Error('Could not find module ' + name);
         }
       }
 
-      callback.apply(this, reified);
+      var deps = mod.deps;
+      var reified = new Array(deps.length);
+      for (var i = 0; i < reified.length; i++) {
+        if (deps[i] === 'exports') {
+          reified[i] = exports;
+        } else if (deps[i] === 'require'){
+          reified[i] = this.require;
+        } else {
+          reified[i] = this._require(deps[i], name);
+        }
+      }
+
+      mod.callback.apply(undefined, reified);
 
       return exports;
-    };
+    }
+  };
 
-    requirejs._eak_seen = registry;
+  loader.require['default'] = loader.require;
+  loader.require.has = function(name) {
+    return !!loader.registry[name];
+  };
 
-    Ember.__loader = {
-      define: enifed,
-      require: require,
-      registry: registry
-    };
-  } else {
-    enifed = Ember.__loader.define;
-    requirejs = require = requireModule = Ember.__loader.require;
-  }
+  Em.__loader = loader;
 })();
 
 Em.__loader.define("glimmer-object/index", ["exports","glimmer-object/lib/object","glimmer-object/lib/computed","glimmer-object/lib/mixin","glimmer-object/lib/descriptors"], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -20493,6 +20458,116 @@ Em.__loader.define("dag-map/platform", ["exports"], function (exports) {
 
   exports.default = platform;
 });
+Em.__loader.define("ember-glimmer/components/curly-component", ["exports","glimmer-runtime/index","ember-metal/assign","ember-views/components/component"], function (exports, _glimmerRuntime, _emberMetalAssign, _emberViewsComponentsComponent) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  var CurlyComponentSyntax = (function (_StatementSyntax) {
+    _inherits(CurlyComponentSyntax, _StatementSyntax);
+
+    function CurlyComponentSyntax(options) {
+      _classCallCheck(this, CurlyComponentSyntax);
+
+      _StatementSyntax.call(this);
+      this.options = options;
+    }
+
+    CurlyComponentSyntax.prototype.compile = function compile(builder) {
+      builder.openComponent(this.options);
+      builder.closeComponent();
+    };
+
+    return CurlyComponentSyntax;
+  })(_glimmerRuntime.StatementSyntax);
+
+  exports.CurlyComponentSyntax = CurlyComponentSyntax;
+
+  var CurlyComponentManager = (function () {
+    function CurlyComponentManager() {
+      _classCallCheck(this, CurlyComponentManager);
+    }
+
+    CurlyComponentManager.prototype.create = function create(definition, args) {
+      var klass = definition.ComponentClass;
+      var attrs = args.value();
+      var merged = _emberMetalAssign.default({}, attrs, { attrs: attrs });
+      var component = klass.create(merged);
+
+      // component.didInitAttrs({ attrs });
+      // component.didReceiveAttrs({ oldAttrs: null, newAttrs: attrs });
+      // component.willInsertElement();
+      // component.willRender();
+
+      return component;
+    };
+
+    CurlyComponentManager.prototype.didCreate = function didCreate(component) {
+      // component.didInsertElement();
+      // component.didRender();
+    };
+
+    CurlyComponentManager.prototype.update = function update(component, args) {
+      // let oldAttrs = component.attrs;
+      var newAttrs = args.value();
+      var merged = _emberMetalAssign.default({}, newAttrs, { attrs: newAttrs });
+
+      component.setProperties(merged);
+      // component.didUpdateAttrs({ oldAttrs, newAttrs });
+      // component.didReceiveAttrs({ oldAttrs, newAttrs });
+      // component.willUpdate();
+      // component.willRender();
+    };
+
+    CurlyComponentManager.prototype.didUpdate = function didUpdate(component) {
+      // component.didUpdate();
+      // component.didRender();
+    };
+
+    CurlyComponentManager.prototype.getSelf = function getSelf(component) {
+      return component;
+    };
+
+    return CurlyComponentManager;
+  })();
+
+  var MANAGER = new CurlyComponentManager();
+
+  function elementId(vm) {
+    var component = vm.getSelf().value();
+    return new _glimmerRuntime.ValueReference(component.elementId);
+  }
+
+  var CurlyComponentDefinition = (function (_ComponentDefinition) {
+    _inherits(CurlyComponentDefinition, _ComponentDefinition);
+
+    function CurlyComponentDefinition(name, ComponentClass, template) {
+      _classCallCheck(this, CurlyComponentDefinition);
+
+      _ComponentDefinition.call(this, name, MANAGER, ComponentClass || _emberViewsComponentsComponent.default);
+      this.template = template;
+    }
+
+    CurlyComponentDefinition.prototype.getLayout = function getLayout() {
+      return this.template.asLayout();
+    };
+
+    CurlyComponentDefinition.prototype.compile = function compile(builder) {
+      builder.tag('div');
+      builder.attrs.dynamic({ name: 'id', value: elementId });
+      builder.attrs.static({ name: 'class', value: 'ember-view' });
+      builder.body.fromLayout(this.getLayout());
+    };
+
+    return CurlyComponentDefinition;
+  })(_glimmerRuntime.ComponentDefinition);
+
+  exports.CurlyComponentDefinition = CurlyComponentDefinition;
+});
 Em.__loader.define("ember-glimmer/ember-metal-views/index", ["exports","ember-glimmer/environment"], function (exports, _emberGlimmerEnvironment) {
   'use strict';
 
@@ -20516,7 +20591,7 @@ Em.__loader.define("ember-glimmer/ember-metal-views/index", ["exports","ember-gl
       var self = new _emberGlimmerEnvironment.RootReference(view);
 
       env.begin();
-      var result = view.template.render(self, env, { appendTo: target });
+      var result = view.template.asEntryPoint().render(self, env, { appendTo: target });
       env.commit();
 
       // FIXME: Store this somewhere else
@@ -20555,35 +20630,56 @@ Em.__loader.define("ember-glimmer/ember-template-compiler/system/compile", ["exp
   exports.default = compile;
 
   var compileSpec = undefined;
-  var Template = undefined;
 
   function compile(string, options) {
     if (!compileSpec && _require.has('glimmer-compiler')) {
       compileSpec = _require.default('glimmer-compiler').compileSpec;
     }
 
-    if (!Template && _require.has('glimmer-runtime')) {
-      Template = _require.default('glimmer-runtime').Template;
-    }
-
-    if (!compileSpec || !Template) {
+    if (!compileSpec) {
       throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
     }
 
-    var templateSpec = _emberGlimmerEmberTemplateCompilerSystemTemplate.default(compileSpec(string, options));
-    return Template.fromSpec(templateSpec, options.env);
+    return _emberGlimmerEmberTemplateCompilerSystemTemplate.default(compileSpec(string, options));
   }
 });
-Em.__loader.define("ember-glimmer/ember-template-compiler/system/template", ["exports"], function (exports) {
-  "use strict";
+Em.__loader.define("ember-glimmer/ember-template-compiler/system/template", ["exports","ember-runtime/system/object","glimmer-runtime/index"], function (exports, _emberRuntimeSystemObject, _glimmerRuntime) {
+  'use strict';
 
   exports.default = template;
 
-  function template(templateSpec) {
-    return JSON.parse(templateSpec);
+  var Wrapper = _emberRuntimeSystemObject.default.extend({
+    _entryPoint: null,
+    _layout: null,
+
+    asEntryPoint: function () {
+      if (!this._entryPoint) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._entryPoint = _glimmerRuntime.Template.fromSpec(spec, env);
+      }
+
+      return this._entryPoint;
+    },
+
+    asLayout: function () {
+      if (!this._layout) {
+        var spec = this.spec;
+        var env = this.env;
+
+        this._layout = _glimmerRuntime.Template.layoutFromSpec(spec, env);
+      }
+
+      return this._layout;
+    }
+  });
+
+  function template(json) {
+    return Wrapper.extend({ spec: JSON.parse(json) });
   }
 });
-Em.__loader.define("ember-glimmer/environment", ["exports","glimmer-runtime/index","ember-metal/property_get","ember-glimmer/helpers/if-unless","ember-glimmer/helpers/concat"], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersConcat) {
+Em.__loader.define("ember-glimmer/environment", ["exports","glimmer-runtime/index","ember-metal/property_get","ember-metal/empty_object","ember-glimmer/helpers/if-unless","ember-glimmer/components/curly-component","ember-glimmer/utils/lookup-component","ember-glimmer/helpers/concat"], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberMetalEmpty_object, _emberGlimmerHelpersIfUnless, _emberGlimmerComponentsCurlyComponent, _emberGlimmerUtilsLookupComponent, _emberGlimmerHelpersConcat) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -20678,10 +20774,48 @@ Em.__loader.define("ember-glimmer/environment", ["exports","glimmer-runtime/inde
 
       _Environment.call(this, dom);
       this.owner = owner;
+      this._components = new _emberMetalEmpty_object.default();
     }
+
+    _default.prototype.refineStatement = function refineStatement(statement) {
+      var isSimple = statement.isSimple;
+      var isInline = statement.isInline;
+      var isBlock = statement.isBlock;
+      var key = statement.key;
+      var path = statement.path;
+      var args = statement.args;
+      var templates = statement.templates;
+
+      if (isSimple && (isInline || isBlock) && key.indexOf('-') >= 0) {
+        var definition = this.getComponentDefinition(path);
+
+        if (definition) {
+          return new _emberGlimmerComponentsCurlyComponent.CurlyComponentSyntax({ args: args, definition: definition, templates: templates });
+        }
+      }
+
+      return _Environment.prototype.refineStatement.call(this, statement);
+    };
 
     _default.prototype.hasComponentDefinition = function hasComponentDefinition() {
       return false;
+    };
+
+    _default.prototype.getComponentDefinition = function getComponentDefinition(name) {
+      var definition = this._components[name];
+
+      if (!definition) {
+        var _lookupComponent = _emberGlimmerUtilsLookupComponent.default(this.owner, name[0]);
+
+        var ComponentClass = _lookupComponent.component;
+        var layout = _lookupComponent.layout;
+
+        if (ComponentClass || layout) {
+          definition = this._components[name] = new _emberGlimmerComponentsCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
+        }
+      }
+
+      return definition;
     };
 
     _default.prototype.hasHelper = function hasHelper(name) {
@@ -20898,6 +21032,36 @@ Em.__loader.define("ember-glimmer/helpers/if-unless", ["exports","ember-runtime/
     }
 
     return true;
+  }
+});
+Em.__loader.define("ember-glimmer/utils/lookup-component", ["exports","ember-metal/features"], function (exports, _emberMetalFeatures) {
+  'use strict';
+
+  exports.default = lookupComponent;
+
+  function lookupComponentPair(componentLookup, owner, name, options) {
+    return {
+      component: componentLookup.componentFor(name, owner, options),
+      layout: componentLookup.layoutFor(name, owner, options)
+    };
+  }
+
+  function lookupComponent(owner, name, options) {
+    var componentLookup = owner.lookup('component-lookup:main');
+
+    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
+      var source = options && options.source;
+
+      if (source) {
+        var localResult = lookupComponentPair(componentLookup, owner, name, options);
+
+        if (localResult.component || localResult.layout) {
+          return localResult;
+        }
+      }
+    }
+
+    return lookupComponentPair(componentLookup, owner, name);
   }
 });
 Em.__loader.define("ember-glimmer", ["exports","ember-glimmer/environment"], function (exports, _emberGlimmerEnvironment) {
@@ -21327,7 +21491,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @class Ember
     @static
-    @version 2.5.0-canary+58f5a9aa
+    @version 2.5.0-canary+fa0dae46
     @public
   */
 
@@ -21369,11 +21533,11 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+58f5a9aa'
+    @default '2.5.0-canary+fa0dae46'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+58f5a9aa';
+  Ember.VERSION = '2.5.0-canary+fa0dae46';
 
   /**
     The hash of environment variables used to control various configuration
@@ -49378,7 +49542,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 (function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+58f5a9aa';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+fa0dae46';
 
   /**
   @module ember
@@ -62754,7 +62918,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+58f5a9aa';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+fa0dae46';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -64632,7 +64796,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+58f5a9aa';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+fa0dae46';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -67442,7 +67606,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+58f5a9aa',
+        revision: 'Ember@2.5.0-canary+fa0dae46',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -70828,21 +70992,21 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   exports.default = lookupComponent;
 
-  function lookupComponentPair(componentLookup, owner, tagName, options) {
+  function lookupComponentPair(componentLookup, owner, name, options) {
     return {
-      component: componentLookup.componentFor(tagName, owner, options),
-      layout: componentLookup.layoutFor(tagName, owner, options)
+      component: componentLookup.componentFor(name, owner, options),
+      layout: componentLookup.layoutFor(name, owner, options)
     };
   }
 
-  function lookupComponent(owner, tagName, options) {
+  function lookupComponent(owner, name, options) {
     var componentLookup = owner.lookup('component-lookup:main');
 
     if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
       var source = options && options.source;
 
       if (source) {
-        var localResult = lookupComponentPair(componentLookup, owner, tagName, options);
+        var localResult = lookupComponentPair(componentLookup, owner, name, options);
 
         if (localResult.component || localResult.layout) {
           return localResult;
@@ -70850,7 +71014,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       }
     }
 
-    return lookupComponentPair(componentLookup, owner, tagName);
+    return lookupComponentPair(componentLookup, owner, name);
   }
 })(Em._e[329],Em._e[4]);
 (function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberMetalStreamsStream, _emberMetalEmpty_object, _emberMetalStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
@@ -72124,7 +72288,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+58f5a9aa';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+fa0dae46';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
