@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+74c99ab1
+ * @version   2.5.0-canary+be5b86ca
  */
 if (typeof Ember === 'undefined') { Em = Ember = {}; }
 Em.__global = this
@@ -558,7 +558,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @class Ember
     @static
-    @version 2.5.0-canary+74c99ab1
+    @version 2.5.0-canary+be5b86ca
     @public
   */
 
@@ -600,11 +600,11 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+74c99ab1'
+    @default '2.5.0-canary+be5b86ca'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+74c99ab1';
+  Ember.VERSION = '2.5.0-canary+be5b86ca';
 
   /**
     The hash of environment variables used to control various configuration
@@ -28604,7 +28604,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 (function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+74c99ab1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
 
   /**
   @module ember
@@ -41980,7 +41980,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+74c99ab1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -43858,7 +43858,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+74c99ab1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -46668,7 +46668,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+74c99ab1',
+        revision: 'Ember@2.5.0-canary+be5b86ca',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -51350,7 +51350,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+74c99ab1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
