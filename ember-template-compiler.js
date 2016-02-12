@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+fa0dae46
+ * @version   2.5.0-canary+74c99ab1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4061,7 +4061,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+fa0dae46
+    @version 2.5.0-canary+74c99ab1
     @public
   */
 
@@ -4103,11 +4103,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+fa0dae46'
+    @default '2.5.0-canary+74c99ab1'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+fa0dae46';
+  Ember.VERSION = '2.5.0-canary+74c99ab1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7637,11 +7637,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     seen[_emberMetalUtils.guidFor(mixin)] = true;
 
     if (mixin.properties) {
-      var props = mixin.properties;
-      for (var key in props) {
-        if (props.hasOwnProperty(key)) {
-          ret[key] = true;
-        }
+      var props = Object.keys(mixin.properties);
+      for (var i = 0; i < props.length; i++) {
+        var key = props[i];
+        ret[key] = true;
       }
     } else if (mixin.mixins) {
       mixin.mixins.forEach(function (x) {
@@ -7653,13 +7652,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
   MixinPrototype.keys = function () {
     var keys = {};
     var seen = {};
-    var ret = [];
+
     _keys(keys, this, seen);
-    for (var key in keys) {
-      if (keys.hasOwnProperty(key)) {
-        ret.push(key);
-      }
-    }
+    var ret = Object.keys(keys);
     return ret;
   };
 
@@ -12615,7 +12610,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+fa0dae46',
+        revision: 'Ember@2.5.0-canary+74c99ab1',
         loc: program.loc,
         moduleName: options.moduleName
       };
