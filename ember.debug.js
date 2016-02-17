@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+be5b86ca
+ * @version   2.5.0-canary+05496918
  */
 if (typeof Ember === 'undefined') { Em = Ember = {}; }
 Em.__global = this
@@ -1815,7 +1815,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @class Ember
     @static
-    @version 2.5.0-canary+be5b86ca
+    @version 2.5.0-canary+05496918
     @public
   */
 
@@ -1857,11 +1857,11 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+be5b86ca'
+    @default '2.5.0-canary+05496918'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+be5b86ca';
+  Ember.VERSION = '2.5.0-canary+05496918';
 
   /**
     The hash of environment variables used to control various configuration
@@ -2079,9 +2079,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   */
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
-    }
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -11961,12 +11958,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     }
   };
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-  }
-
   exports.default = Libraries;
 })(Em._e[50],Em._e[1],Em._e[4]);
 (function (exports, _emberMetalIs_empty) {
@@ -12808,12 +12799,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  } else {
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  }
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -17145,17 +17131,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function lookup(container, fullName) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options.source) {
-        fullName = container.registry.expandLocalLookup(fullName, options);
-
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
-      }
-    }
-
     if (container.cache[fullName] !== undefined && options.singleton !== false) {
       return container.cache[fullName];
     }
@@ -17213,17 +17188,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     var registry = container.registry;
-
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options.source) {
-        fullName = registry.expandLocalLookup(fullName, options);
-
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
-      }
-    }
 
     var cache = container.factoryCache;
     if (cache[fullName]) {
@@ -17728,9 +17692,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       var source = undefined;
-      if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-        source = options && options.source && this.normalize(options.source);
-      }
 
       return has(this, this.normalize(fullName), source);
     },
@@ -18098,40 +18059,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     };
   }
 
-  if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-    /**
-      Given a fullName and a source fullName returns the fully resolved
-      fullName. Used to allow for local lookup.
-       ```javascript
-      var registry = new Registry();
-       // the twitter factory is added to the module system
-      registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-      ```
-       @private
-      @method expandLocalLookup
-      @param {String} fullName
-      @param {Object} [options]
-      @param {String} [options.source] the fullname of the request source (used for local lookups)
-      @return {String} fullName
-    */
-    Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
-      if (this.resolver && this.resolver.expandLocalLookup) {
-        _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
-        _emberMetalDebug.assert('options.source must be provided to expandLocalLookup', options && options.source);
-        _emberMetalDebug.assert('options.source must be a proper full name', this.validateFullName(options.source));
-
-        var normalizedFullName = this.normalize(fullName);
-        var normalizedSource = this.normalize(options.source);
-
-        return expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback) {
-        return this.fallback.expandLocalLookup(fullName, options);
-      } else {
-        return null;
-      }
-    };
-  }
-
   function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
     var normalizedNameCache = cache[normalizedName];
@@ -18152,18 +18079,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   function resolve(registry, normalizedName, options) {
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      if (options && options.source) {
-        // when `source` is provided expand normalizedName
-        // and source into the full normalizedName
-        normalizedName = registry.expandLocalLookup(normalizedName, options);
-
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
-        }
-      }
-    }
 
     var cached = registry._resolveCache[normalizedName];
     if (cached !== undefined) {
@@ -30724,7 +30639,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 (function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+05496918';
 
   /**
   @module ember
@@ -41896,17 +41811,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     };
 
     var Component = undefined;
-    if (_emberMetalFeatures.default('ember-routing-routable-components')) {
-      var componentName = options && options.component || namePassed && name || route.componentName || name;
-      var componentLookup = owner.lookup('component-lookup:main');
-      Component = componentLookup.lookupFactory(componentName);
-      var isGlimmerComponent = Component && Component.proto().isGlimmerComponent;
-      if (!template && !ViewClass && Component && isGlimmerComponent) {
-        renderOptions.Component = Component;
-        renderOptions.ViewClass = undefined;
-        renderOptions.attrs = { model: _emberMetalProperty_get.get(controller, 'model') };
-      }
-    }
 
     if (!ViewClass && !template && !Component) {
       _emberMetalDebug.assert('Could not find "' + name + '" template, view, or component.', isDefaultRender);
@@ -44235,7 +44139,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+05496918';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -46156,7 +46060,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+05496918';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -48410,15 +48314,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.Resolver;
   _emberMetalCore.default.DefaultResolver = _emberApplicationSystemResolver.default;
 
-  if (_emberMetalFeatures.default('ember-application-engines')) {
-    _emberMetalCore.default.Engine = _emberApplicationSystemEngine.default;
-
-    // Expose `EngineInstance` and `ApplicationInstance` for easy overriding.
-    // Reanalyze whether to continue exposing these after feature flag is removed.
-    _emberMetalCore.default.EngineInstance = _emberApplicationSystemEngineInstance.default;
-    _emberMetalCore.default.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
-  }
-
   _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 })(Em._e[276],Em._e[2],Em._e[4],Em._e[92],Em._e[233],Em._e[275],Em._e[252],Em._e[274],Em._e[251]);
 (function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemString, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberApplicationSystemApplication, _containerOwner, _emberRuntimeMixinsArray) {
@@ -48947,7 +48842,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   exports.default = plugins;
 })(Em._e[279]);
-(function (exports, _emberMetalFeatures, _emberMetalAssign, _emberTemplateCompilerPlugins) {
+(function (exports, _emberMetalAssign, _emberTemplateCompilerPlugins) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -48987,7 +48882,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+be5b86ca',
+        revision: 'Ember@2.5.0-canary+05496918',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -49052,7 +48947,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       return false;
     }
   }
-})(Em._e[280],Em._e[4],Em._e[3],Em._e[279]);
+})(Em._e[280],Em._e[3],Em._e[279]);
 (function (exports, _require, _emberTemplateCompilerSystemCompile_options) {
   /**
   @module ember
@@ -49661,7 +49556,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   exports.default = TransformInputOnToOnEvent;
 })(Em._e[290],Em._e[1],Em._e[283]);
-(function (exports, _emberMetalFeatures) {
+(function (exports) {
   'use strict';
 
   function TransformTopLevelComponents() {
@@ -49742,7 +49637,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   exports.default = TransformTopLevelComponents;
-})(Em._e[291],Em._e[4]);
+})(Em._e[291]);
 (function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
@@ -51172,7 +51067,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   exports.default = EmberHandlebars;
 })(Em._e[320],Em._e[2],Em._e[319]);
-(function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsTemplate_registry, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+(function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsTemplate_registry, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -51317,7 +51212,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     get: _emberHtmlbarsTemplate_registry.getTemplates,
     set: _emberHtmlbarsTemplate_registry.setTemplates
   });
-})(Em._e[321],Em._e[2],Em._e[4],Em._e[299],Em._e[301],Em._e[230],Em._e[303],Em._e[304],Em._e[305],Em._e[306],Em._e[308],Em._e[309],Em._e[310],Em._e[311],Em._e[312],Em._e[314],Em._e[315],Em._e[316],Em._e[317],Em._e[247],Em._e[300],Em._e[264],Em._e[232],Em._e[318],Em._e[320]);
+})(Em._e[321],Em._e[2],Em._e[4],Em._e[299],Em._e[301],Em._e[230],Em._e[303],Em._e[304],Em._e[305],Em._e[306],Em._e[308],Em._e[309],Em._e[310],Em._e[311],Em._e[312],Em._e[314],Em._e[315],Em._e[316],Em._e[317],Em._e[247],Em._e[300],Em._e[232],Em._e[318],Em._e[320]);
 (function (exports, _htmlbarsRuntime) {
   /**
   @module ember
@@ -52442,18 +52337,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function lookupComponent(owner, name, options) {
     var componentLookup = owner.lookup('component-lookup:main');
 
-    if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-      var source = options && options.source;
-
-      if (source) {
-        var localResult = lookupComponentPair(componentLookup, owner, name, options);
-
-        if (localResult.component || localResult.layout) {
-          return localResult;
-        }
-      }
-    }
-
     return lookupComponentPair(componentLookup, owner, name);
   }
 })(Em._e[334],Em._e[4]);
@@ -53336,20 +53219,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if (hasComponentOrTemplate(owner, path)) {
         return true; // global component found
       } else {
-          if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-            var moduleName = env.meta && env.meta.moduleName;
-
-            if (!moduleName) {
-              // Without a source moduleName, we can not perform local lookups.
-              return false;
-            }
-
-            var options = { source: 'template:' + moduleName };
-
-            return hasComponentOrTemplate(owner, path, options);
-          } else {
-            return false;
-          }
+          return false;
         }
     }
   }
@@ -53462,13 +53332,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         layout = undefined;
     if (isDasherized || !isAngleBracket) {
       var options = {};
-      if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
-        var moduleName = env.meta && env.meta.moduleName;
-
-        if (moduleName) {
-          options.source = 'template:' + moduleName;
-        }
-      }
 
       var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
 
@@ -53740,7 +53603,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+be5b86ca';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+05496918';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -53852,10 +53715,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       }
 
       var Component;
-
-      if (_emberMetalFeatures.default('ember-routing-routable-components')) {
-        Component = outletState.render.Component;
-      }
 
       var options;
       var attrs = {};
