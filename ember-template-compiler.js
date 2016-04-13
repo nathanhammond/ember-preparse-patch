@@ -1543,10 +1543,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      exports.featuresWereStripped = featuresWereStripped = false;
-    }
-
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
 
@@ -1576,64 +1572,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   */
   _emberMetalCore.default.Debug = {};
 
-  /**
-    Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
-    The following example demonstrates its usage by registering a handler that throws an error if the
-    message contains the word "should", otherwise defers to the default handler.
-     ```javascript
-    Ember.Debug.registerDeprecationHandler((message, options, next) => {
-      if (message.indexOf('should') !== -1) {
-        throw new Error(`Deprecation message with should: ${message}`);
-      } else {
-        // defer to whatever handler was registered before this one
-        next(message, options);
-      }
-    }
-    ```
-     The handler function takes the following arguments:
-     <ul>
-      <li> <code>message</code> - The message received from the deprecation call.</li>
-      <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
-        <ul>
-          <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
-          <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
-        </ul>
-      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
-    </ul>
-     @public
-    @static
-    @method registerDeprecationHandler
-    @param handler {Function} A function to handle deprecation calls.
-    @since 2.1.0
-  */
-  _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
-  /**
-    Allows for runtime registration of handler functions that override the default warning behavior.
-    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
-    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
-    default warning behavior.
-     ```javascript
-    // next is not called, so no warnings get the default behavior
-    Ember.Debug.registerWarnHandler(() => {});
-    ```
-     The handler function takes the following arguments:
-     <ul>
-      <li> <code>message</code> - The message received from the warn call. </li>
-      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
-        <ul>
-          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
-        </ul>
-      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
-    </ul>
-     @public
-    @static
-    @method registerWarnHandler
-    @param handler {Function} A function to handle warnings.
-    @since 2.1.0
-  */
-  _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
-
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -1648,6 +1586,63 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
+
+/**
+  Allows for runtime registration of handler functions that override the default deprecation behavior.
+  Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+  The following example demonstrates its usage by registering a handler that throws an error if the
+  message contains the word "should", otherwise defers to the default handler.
+   ```javascript
+  Ember.Debug.registerDeprecationHandler((message, options, next) => {
+    if (message.indexOf('should') !== -1) {
+      throw new Error(`Deprecation message with should: ${message}`);
+    } else {
+      // defer to whatever handler was registered before this one
+      next(message, options);
+    }
+  }
+  ```
+   The handler function takes the following arguments:
+   <ul>
+    <li> <code>message</code> - The message received from the deprecation call.</li>
+    <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
+      <ul>
+        <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
+        <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
+      </ul>
+    <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+  </ul>
+   @public
+  @static
+  @method registerDeprecationHandler
+  @param handler {Function} A function to handle deprecation calls.
+  @since 2.1.0
+*/
+
+/**
+  Allows for runtime registration of handler functions that override the default warning behavior.
+  Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+  The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
+  default warning behavior.
+   ```javascript
+  // next is not called, so no warnings get the default behavior
+  Ember.Debug.registerWarnHandler(() => {});
+  ```
+   The handler function takes the following arguments:
+   <ul>
+    <li> <code>message</code> - The message received from the warn call. </li>
+    <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
+      <ul>
+        <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+      </ul>
+    <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+  </ul>
+   @public
+  @static
+  @method registerWarnHandler
+  @param handler {Function} A function to handle warnings.
+  @since 2.1.0
+*/
 enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
   'use strict';
 
@@ -5095,6 +5090,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
+  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
   _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
@@ -5131,9 +5127,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
     _require.default('ember-debug');
   } else {
     _emberMetalCore.default.Debug = {};
-
-    _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
-    _emberMetalCore.default.Debug.registerWarnHandler = function () {};
   }
 
   _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
@@ -6337,6 +6330,9 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
+    _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, {
+      id: 'ember-metal.merge', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-merge'
+    });
 
     if (!updates || typeof updates !== 'object') {
       return original;
