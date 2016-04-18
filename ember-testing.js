@@ -531,6 +531,64 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
   */
   _emberMetalCore.default.Debug = {};
 
+  /**
+    Allows for runtime registration of handler functions that override the default deprecation behavior.
+    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    The following example demonstrates its usage by registering a handler that throws an error if the
+    message contains the word "should", otherwise defers to the default handler.
+     ```javascript
+    Ember.Debug.registerDeprecationHandler((message, options, next) => {
+      if (message.indexOf('should') !== -1) {
+        throw new Error(`Deprecation message with should: ${message}`);
+      } else {
+        // defer to whatever handler was registered before this one
+        next(message, options);
+      }
+    }
+    ```
+     The handler function takes the following arguments:
+     <ul>
+      <li> <code>message</code> - The message received from the deprecation call.</li>
+      <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
+          <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
+        </ul>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+    </ul>
+     @public
+    @static
+    @method registerDeprecationHandler
+    @param handler {Function} A function to handle deprecation calls.
+    @since 2.1.0
+  */
+  _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  /**
+    Allows for runtime registration of handler functions that override the default warning behavior.
+    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
+    default warning behavior.
+     ```javascript
+    // next is not called, so no warnings get the default behavior
+    Ember.Debug.registerWarnHandler(() => {});
+    ```
+     The handler function takes the following arguments:
+     <ul>
+      <li> <code>message</code> - The message received from the warn call. </li>
+      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+        </ul>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+    </ul>
+     @public
+    @static
+    @method registerWarnHandler
+    @param handler {Function} A function to handle warnings.
+    @since 2.1.0
+  */
+  _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -545,63 +603,6 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
-
-/**
-  Allows for runtime registration of handler functions that override the default deprecation behavior.
-  Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
-  The following example demonstrates its usage by registering a handler that throws an error if the
-  message contains the word "should", otherwise defers to the default handler.
-   ```javascript
-  Ember.Debug.registerDeprecationHandler((message, options, next) => {
-    if (message.indexOf('should') !== -1) {
-      throw new Error(`Deprecation message with should: ${message}`);
-    } else {
-      // defer to whatever handler was registered before this one
-      next(message, options);
-    }
-  }
-  ```
-   The handler function takes the following arguments:
-   <ul>
-    <li> <code>message</code> - The message received from the deprecation call.</li>
-    <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
-      <ul>
-        <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
-        <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
-      </ul>
-    <li> <code>next</code> - A function that calls into the previously registered handler.</li>
-  </ul>
-   @public
-  @static
-  @method registerDeprecationHandler
-  @param handler {Function} A function to handle deprecation calls.
-  @since 2.1.0
-*/
-
-/**
-  Allows for runtime registration of handler functions that override the default warning behavior.
-  Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
-  The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
-  default warning behavior.
-   ```javascript
-  // next is not called, so no warnings get the default behavior
-  Ember.Debug.registerWarnHandler(() => {});
-  ```
-   The handler function takes the following arguments:
-   <ul>
-    <li> <code>message</code> - The message received from the warn call. </li>
-    <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
-      <ul>
-        <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
-      </ul>
-    <li> <code>next</code> - A function that calls into the previously registered handler.</li>
-  </ul>
-   @public
-  @static
-  @method registerWarnHandler
-  @param handler {Function} A function to handle warnings.
-  @since 2.1.0
-*/
 enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
   'use strict';
 
@@ -759,10 +760,8 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
     }
   });
 });
-enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp, _emberMetalFeatures) {
   'use strict';
-
-  //import isEnabled from 'ember-metal/features';
 
   /**
   @module ember
@@ -772,140 +771,97 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   var helper = _emberTestingTest.default.registerHelper;
   var asyncHelper = _emberTestingTest.default.registerAsyncHelper;
 
-  /*var keyboardEventTypes, mouseEventTypes, buildKeyboardEvent, buildMouseEvent, buildBasicEvent, fireEvent, focus;
-  
-  if (isEnabled('ember-test-helpers-fire-native-events')) {
-    let defaultEventOptions = { canBubble: true, cancelable: true };
-    keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
-    mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mousenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
-  
-  
-    buildKeyboardEvent = function buildKeyboardEvent(type, options = {}) {
-      let event;
-      try {
-        event = document.createEvent('KeyEvents');
-        let eventOpts = jQuery.extend({}, defaultEventOptions, options);
-        event.initKeyEvent(
-          type,
-          eventOpts.canBubble,
-          eventOpts.cancelable,
-          window,
-          eventOpts.ctrlKey,
-          eventOpts.altKey,
-          eventOpts.shiftKey,
-          eventOpts.metaKey,
-          eventOpts.keyCode,
-          eventOpts.charCode
-        );
-      } catch (e) {
-        event = buildBasicEvent(type, options);
+  var keyboardEventTypes, mouseEventTypes, buildKeyboardEvent, buildMouseEvent, buildBasicEvent, fireEvent, focus;
+
+  var defaultEventOptions = { canBubble: true, cancelable: true };
+  keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
+  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mousenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
+
+  buildKeyboardEvent = function buildKeyboardEvent(type) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    var event = undefined;
+    try {
+      event = document.createEvent('KeyEvents');
+      var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
+      event.initKeyEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.keyCode, eventOpts.charCode);
+    } catch (e) {
+      event = buildBasicEvent(type, options);
+    }
+    return event;
+  };
+
+  buildMouseEvent = function buildMouseEvent(type) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    var event = undefined;
+    try {
+      event = document.createEvent('MouseEvents');
+      var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
+      event.initMouseEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.detail, eventOpts.screenX, eventOpts.screenY, eventOpts.clientX, eventOpts.clientY, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.button, eventOpts.relatedTarget);
+    } catch (e) {
+      event = buildBasicEvent(type, options);
+    }
+    return event;
+  };
+
+  buildBasicEvent = function buildBasicEvent(type) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    var event = document.createEvent('Events');
+    event.initEvent(type, true, true);
+    _emberViewsSystemJquery.default.extend(event, options);
+    return event;
+  };
+
+  fireEvent = function fireEvent(element, type) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    if (!element) {
+      return;
+    }
+    var event = undefined;
+    if (keyboardEventTypes.indexOf(type) > -1) {
+      event = buildKeyboardEvent(type, options);
+    } else if (mouseEventTypes.indexOf(type) > -1) {
+      var rect = element.getBoundingClientRect();
+      var x = rect.left + 1;
+      var y = rect.top + 1;
+      var simulatedCoordinates = {
+        screenX: x + 5,
+        screenY: y + 95,
+        clientX: x,
+        clientY: y
+      };
+      event = buildMouseEvent(type, _emberViewsSystemJquery.default.extend(simulatedCoordinates, options));
+    } else {
+      event = buildBasicEvent(type, options);
+    }
+    element.dispatchEvent(event);
+  };
+
+  focus = function focus(el) {
+    if (!el) {
+      return;
+    }
+    var $el = _emberViewsSystemJquery.default(el);
+    if ($el.is(':input, [contenteditable=true]')) {
+      var type = $el.prop('type');
+      if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
+        _emberMetalRun_loop.default(null, function () {
+          // Firefox does not trigger the `focusin` event if the window
+          // does not have focus. If the document doesn't have focus just
+          // use trigger('focusin') instead.
+
+          if (!document.hasFocus || document.hasFocus()) {
+            el.focus();
+          } else {
+            $el.trigger('focusin');
+          }
+        });
       }
-      return event;
-    };
-  
-    buildMouseEvent = function buildMouseEvent(type, options = {}) {
-      let event;
-      try {
-        event = document.createEvent('MouseEvents');
-        let eventOpts = jQuery.extend({}, defaultEventOptions, options);
-        event.initMouseEvent(
-          type,
-          eventOpts.canBubble,
-          eventOpts.cancelable,
-          window,
-          eventOpts.detail,
-          eventOpts.screenX,
-          eventOpts.screenY,
-          eventOpts.clientX,
-          eventOpts.clientY,
-          eventOpts.ctrlKey,
-          eventOpts.altKey,
-          eventOpts.shiftKey,
-          eventOpts.metaKey,
-          eventOpts.button,
-          eventOpts.relatedTarget);
-      } catch (e) {
-        event = buildBasicEvent(type, options);
-      }
-      return event;
-    };
-  
-    buildBasicEvent = function buildBasicEvent(type, options = {}) {
-      let event = document.createEvent('Events');
-      event.initEvent(type, true, true);
-      jQuery.extend(event, options);
-      return event;
-    };
-  
-    fireEvent = function fireEvent(element, type, options = {}) {
-      if (!element) {
-        return;
-      }
-      let event;
-      if (keyboardEventTypes.indexOf(type) > -1) {
-        event = buildKeyboardEvent(type, options);
-      } else if (mouseEventTypes.indexOf(type) > -1) {
-        let rect = element.getBoundingClientRect();
-        let x = rect.left + 1;
-        let y = rect.top + 1;
-        let simulatedCoordinates = {
-          screenX: x + 5,
-          screenY: y + 95,
-          clientX: x,
-          clientY: y
-        };
-        event = buildMouseEvent(type, jQuery.extend(simulatedCoordinates, options));
-      } else {
-        event = buildBasicEvent(type, options);
-      }
-      element.dispatchEvent(event);
-    };
-  
-    focus = function focus(el) {
-      if (!el) { return; }
-      let $el = jQuery(el);
-      if ($el.is(':input, [contenteditable=true]')) {
-        let type = $el.prop('type');
-        if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-          run(null, function() {
-            // Firefox does not trigger the `focusin` event if the window
-            // does not have focus. If the document doesn't have focus just
-            // use trigger('focusin') instead.
-  
-            if (!document.hasFocus || document.hasFocus()) {
-              el.focus();
-            } else {
-              $el.trigger('focusin');
-            }
-          });
-        }
-      }
-    };
-  } else {
-    focus = function focus(el) {
-      if (el && el.is(':input, [contenteditable=true]')) {
-        var type = el.prop('type');
-        if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-          run(el, function() {
-            // Firefox does not trigger the `focusin` event if the window
-            // does not have focus. If the document doesn't have focus just
-            // use trigger('focusin') instead.
-            if (!document.hasFocus || document.hasFocus()) {
-              this.focus();
-            } else {
-              this.trigger('focusin');
-            }
-          });
-        }
-      }
-    };
-  
-    fireEvent = function fireEvent(element, type, options) {
-      var event = jQuery.Event(type, options);
-      jQuery(element).trigger(event);
-    };
-  }
-  */
+    }
+  };
 
   function currentRouteName(app) {
     var routingService = app.__container__.lookup('service:-routing');
@@ -928,24 +884,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   function pauseTest() {
     _emberTestingTest.default.adapter.asyncStart();
     return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
-  }
-
-  function focus(el) {
-    if (el && el.is(':input, [contenteditable=true]')) {
-      var type = el.prop('type');
-      if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-        _emberMetalRun_loop.default(el, function () {
-          // Firefox does not trigger the `focusin` event if the window
-          // does not have focus. If the document doesn't have focus just
-          // use trigger('focusin') instead.
-          if (!document.hasFocus || document.hasFocus()) {
-            this.focus();
-          } else {
-            this.trigger('focusin');
-          }
-        });
-      }
-    }
   }
 
   function visit(app, url) {
@@ -972,19 +910,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   }
 
   function click(app, selector, context) {
-    /*let $el = app.testHelpers.findWithAssert(selector, context);
-    let el = $el[0];
-     run(null, fireEvent, el, 'mousedown');
-     focus(el);
-     run(null, fireEvent, el, 'mouseup');
-    run(null, fireEvent, el, 'click');*/
     var $el = app.testHelpers.findWithAssert(selector, context);
-    _emberMetalRun_loop.default($el, 'mousedown');
+    var el = $el[0];
 
-    focus($el);
+    _emberMetalRun_loop.default(null, fireEvent, el, 'mousedown');
 
-    _emberMetalRun_loop.default($el, 'mouseup');
-    _emberMetalRun_loop.default($el, 'click');
+    focus(el);
+
+    _emberMetalRun_loop.default(null, fireEvent, el, 'mouseup');
+    _emberMetalRun_loop.default(null, fireEvent, el, 'click');
 
     return app.testHelpers.wait();
   }
@@ -1021,10 +955,9 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
     }
 
     var $el = app.testHelpers.findWithAssert(selector, context);
-    /*var el = $el[0];
-     run(null, fireEvent, el, type, options);*/
-    var event = _emberViewsSystemJquery.default.Event(type, options);
-    _emberMetalRun_loop.default($el, 'trigger', event);
+    var el = $el[0];
+
+    _emberMetalRun_loop.default(null, fireEvent, el, type, options);
 
     return app.testHelpers.wait();
   }
@@ -1045,20 +978,19 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   }
 
   function fillIn(app, selector, contextOrText, text) {
-    var $el, context;
+    var $el, el, context;
     if (typeof text === 'undefined') {
       text = contextOrText;
     } else {
       context = contextOrText;
     }
     $el = app.testHelpers.findWithAssert(selector, context);
-    //el = $el[0];
-    //focus(el);
-    focus($el);
+    el = $el[0];
+    focus(el);
     _emberMetalRun_loop.default(function () {
       $el.val(text);
-      $el.trigger('input');
-      $el.change();
+      fireEvent(el, 'input');
+      fireEvent(el, 'change');
     });
     return app.testHelpers.wait();
   }
@@ -1369,6 +1301,10 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   */
   asyncHelper('triggerEvent', triggerEvent);
 });
+
+// Firefox does not trigger the `focusin` event if the window
+// does not have focus. If the document doesn't have focus just
+// use trigger('focusin') instead.
 enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
   'use strict';
 
