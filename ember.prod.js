@@ -12589,7 +12589,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     @since 1.1.0
     @public
   */
-  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-test-helpers-fire-native-events":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-metal-ember-assign":null,"ember-application-engines":null,"ember-route-serializers":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null,"ember-improved-instrumentation":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
+  var KNOWN_FEATURES = {"features-stripped-test":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-application-engines":null,"ember-route-serializers":null,"ember-glimmer":null,"ember-runtime-computed-uniq-by":null,"ember-improved-instrumentation":null};exports.KNOWN_FEATURES = KNOWN_FEATURES;
   // jshint ignore:line
   var FEATURES = _emberMetalAssign.default(KNOWN_FEATURES, _emberEnvironment.ENV.FEATURES);
 
