@@ -6,10 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.7.0-canary+352f143a
+ * @version   2.5.1
  */
 
-var enifed, requireModule, require, Ember;
+var enifed, requireModule, require, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -20,7 +20,7 @@ var mainContext = this;
     Ember = this.Ember = this.Ember || {};
   }
 
-  if (typeof Ember === 'undefined') { Ember = {}; }
+  if (typeof Ember === 'undefined') { Ember = {}; };
 
   if (typeof Ember.__loader === 'undefined') {
     var registry = {};
@@ -40,9 +40,9 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    require = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       return internalRequire(name, null);
-    };
+    }
 
     // setup `require` module
     require['default'] = require;
@@ -83,7 +83,7 @@ var mainContext = this;
       var deps = mod.deps;
       var callback = mod.callback;
       var length = deps.length;
-      var reified = new Array(length);
+      var reified = new Array(length);;
 
       for (var i = 0; i < length; i++) {
         if (deps[i] === 'exports') {
@@ -98,9 +98,9 @@ var mainContext = this;
       callback.apply(this, reified);
 
       return exports;
-    }
+    };
 
-    requireModule._eak_seen = registry;
+    requirejs._eak_seen = registry;
 
     Ember.__loader = {
       define: enifed,
@@ -109,11 +109,11 @@ var mainContext = this;
     };
   } else {
     enifed = Ember.__loader.define;
-    require = requireModule = Ember.__loader.require;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
-enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-metal/logger', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberMetalError, _emberMetalLogger, _emberEnvironment, _emberDebugHandlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
   /*global __fail__*/
 
   'use strict';
@@ -146,27 +146,18 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-metal/lo
     _emberMetalLogger.default.warn('DEPRECATION: ' + updatedMessage);
   });
 
-  var captureErrorForStack = undefined;
+  registerHandler(function logDeprecationStackTrace(message, options, next) {
+    if (_emberMetalCore.default.LOG_STACKTRACE_ON_DEPRECATION) {
+      var stackStr = '';
+      var error = undefined,
+          stack = undefined;
 
-  if (new Error().stack) {
-    captureErrorForStack = function () {
-      return new Error();
-    };
-  } else {
-    captureErrorForStack = function () {
+      // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
       try {
         __fail__.fail();
       } catch (e) {
-        return e;
+        error = e;
       }
-    };
-  }
-
-  registerHandler(function logDeprecationStackTrace(message, options, next) {
-    if (_emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION) {
-      var stackStr = '';
-      var error = captureErrorForStack();
-      var stack = undefined;
 
       if (error.stack) {
         if (error['arguments']) {
@@ -190,7 +181,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-metal/lo
   });
 
   registerHandler(function raiseOnDeprecation(message, options, next) {
-    if (_emberEnvironment.ENV.RAISE_ON_DEPRECATION) {
+    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
       var updatedMessage = formatMessage(message);
 
       throw new _emberMetalError.default(updatedMessage);
@@ -259,14 +250,29 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-metal/lo
     _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
   }
 });
-enifed("ember-debug/handlers", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function', 'ember-debug/deprecate'], function (exports, _emberDebugIsPlainFunction, _emberDebugDeprecate) {
+  'use strict';
 
+  exports.generateTestAsFunctionDeprecation = generateTestAsFunctionDeprecation;
   exports.registerHandler = registerHandler;
   exports.invoke = invoke;
   var HANDLERS = {};
 
   exports.HANDLERS = HANDLERS;
+
+  function generateTestAsFunctionDeprecation(source) {
+    return 'Calling `' + source + '` with a function argument is deprecated. Please ' + 'use `!!Constructor` for constructors, or an `IIFE` to compute the test for deprecation. ' + 'In a future version, functions will be treated as truthy values instead of being executed.';
+  }
+
+  function normalizeTest(test, source) {
+    if (_emberDebugIsPlainFunction.default(test)) {
+      _emberDebugDeprecate.default(generateTestAsFunctionDeprecation(source), false, { id: 'ember-debug.deprecate-test-as-function', until: '2.5.0' });
+
+      return test();
+    }
+
+    return test;
+  }
 
   function registerHandler(type, callback) {
     var nextHandler = HANDLERS[type] || function () {};
@@ -277,7 +283,7 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
   }
 
   function invoke(type, message, test, options) {
-    if (test) {
+    if (normalizeTest(test, 'Ember.' + type)) {
       return;
     }
 
@@ -292,7 +298,7 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecate, _emberDebugWarn) {
+enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction, _emberDebugHandlers) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
@@ -329,7 +335,17 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     @public
   */
   _emberMetalDebug.setDebugFunction('assert', function assert(desc, test) {
-    if (!test) {
+    var throwAssertion = undefined;
+
+    if (_emberDebugIsPlainFunction.default(test)) {
+      _emberMetalDebug.deprecate(_emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'), false, { id: 'ember-debug.deprecate-test-as-function', until: '2.5.0' });
+
+      throwAssertion = !test();
+    } else {
+      throwAssertion = !test;
+    }
+
+    if (throwAssertion) {
       throw new _emberMetalError.default('Assertion Failed: ' + desc);
     }
   });
@@ -467,7 +483,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, knownFeatures, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
@@ -486,16 +502,12 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      exports.featuresWereStripped = featuresWereStripped = false;
-    }
-
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
-    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
+    _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
-    var isFirefox = _emberEnvironment.environment.isFirefox;
-    var isChrome = _emberEnvironment.environment.isChrome;
+    var isFirefox = _emberMetalEnvironment.default.isFirefox;
+    var isChrome = _emberMetalEnvironment.default.isChrome;
 
     if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
       window.addEventListener('load', function () {
@@ -524,8 +536,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
-  
-    ```javascript
+     ```javascript
     Ember.Debug.registerDeprecationHandler((message, options, next) => {
       if (message.indexOf('should') !== -1) {
         throw new Error(`Deprecation message with should: ${message}`);
@@ -535,10 +546,8 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
       }
     }
     ```
-  
-    The handler function takes the following arguments:
-  
-    <ul>
+     The handler function takes the following arguments:
+     <ul>
       <li> <code>message</code> - The message received from the deprecation call.</li>
       <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
         <ul>
@@ -547,8 +556,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
         </ul>
       <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
-  
-    @public
+     @public
     @static
     @method registerDeprecationHandler
     @param handler {Function} A function to handle deprecation calls.
@@ -560,15 +568,12 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
     Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
     The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
     default warning behavior.
-  
-    ```javascript
+     ```javascript
     // next is not called, so no warnings get the default behavior
     Ember.Debug.registerWarnHandler(() => {});
     ```
-  
-    The handler function takes the following arguments:
-  
-    <ul>
+     The handler function takes the following arguments:
+     <ul>
       <li> <code>message</code> - The message received from the warn call. </li>
       <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
         <ul>
@@ -576,8 +581,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
         </ul>
       <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
-  
-    @public
+     @public
     @static
     @method registerWarnHandler
     @param handler {Function} A function to handle warnings.
@@ -597,6 +601,15 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment',
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
   if (runningNonEmberDebugJS) {
     _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
+  }
+});
+enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = isPlainFunction;
+
+  function isPlainFunction(test) {
+    return typeof test === 'function' && test.PrototypeMixin === undefined;
   }
 });
 enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberDebugHandlers) {
@@ -1385,7 +1398,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
 });
 
 // import Test from "ember-testing/test";  // ES6TODO: fix when cycles are supported
-enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberEnvironment) {
+enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberMetalEnvironment) {
   'use strict';
 
   /**
@@ -1407,7 +1420,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
     $('<input type="checkbox">').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberEnvironment.environment.hasDOM) {
+  if (_emberMetalEnvironment.default.hasDOM) {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
