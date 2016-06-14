@@ -1418,6 +1418,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
+  var fnToString = Function.prototype.toString;
 
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
@@ -1426,7 +1427,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
-        return HAS_SUPER_PATTERN.test(func.toString());
+        return HAS_SUPER_PATTERN.test(fnToString.call(func));
       };
     }
 
@@ -1473,32 +1474,8 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function _wrap(func, superFunc) {
     function superWrapper() {
       var orig = this._super;
-      var length = arguments.length;
-      var ret = undefined;
       this._super = superFunc;
-      switch (length) {
-        case 0:
-          ret = func.call(this);break;
-        case 1:
-          ret = func.call(this, arguments[0]);break;
-        case 2:
-          ret = func.call(this, arguments[0], arguments[1]);break;
-        case 3:
-          ret = func.call(this, arguments[0], arguments[1], arguments[2]);break;
-        case 4:
-          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3]);break;
-        case 5:
-          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);break;
-        default:
-          // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-          // we may want to keep this around till this ages out on mobile
-          var args = new Array(length);
-          for (var x = 0; x < length; x++) {
-            args[x] = arguments[x];
-          }
-          ret = func.apply(this, args);
-          break;
-      }
+      var ret = func.apply(this, arguments);
       this._super = orig;
       return ret;
     }
@@ -13307,31 +13284,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     }
   };
 
-  function injectedPropertyAssertion() {}
-
-  /**
-    Returns a hash of property names and container names that injected
-    properties will lookup on the container lazily.
-  
-    @method _lazyInjections
-    @return {Object} Hash of all lazy injected property keys to container names
-    @private
-  */
-  ClassMixinProps._lazyInjections = function () {
-    var injections = {};
-    var proto = this.proto();
-    var key, desc;
-
-    for (key in proto) {
-      desc = proto[key];
-      if (desc instanceof _emberMetalInjected_property.default) {
-        injections[key] = desc.type + ':' + (desc.name || key);
-      }
-    }
-
-    return injections;
-  };
-
   var ClassMixin = _emberMetalMixin.Mixin.create(ClassMixinProps);
 
   ClassMixin.ownerConstructor = CoreObject;
@@ -14807,7 +14759,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     this.owner = options && options.owner ? options.owner : null;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
-    this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
     this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
     this[CONTAINER_OVERRIDE] = undefined;
   }
@@ -14841,13 +14792,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
      @type InheritingDict
      */
     factoryCache: null,
-
-    /**
-     @private
-     @property validationCache
-     @type InheritingDict
-     */
-    validationCache: null,
 
     /**
      Given a fullName return a corresponding instance.
@@ -15095,7 +15039,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   function instantiate(container, fullName) {
     var factory = factoryFor(container, fullName);
-    var lazyInjections, validationCache;
 
     if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
@@ -15105,10 +15048,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if (typeof factory.create !== 'function') {
         throw new Error('Failed to create an instance of \'' + fullName + '\'. ' + 'Most likely an improperly defined class or an invalid module export.');
       }
-
-      validationCache = container.validationCache;
-
-      validationCache[fullName] = true;
 
       var obj = undefined;
 
