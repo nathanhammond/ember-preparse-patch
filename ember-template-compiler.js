@@ -1527,6 +1527,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
+    if (false) {
+      exports.featuresWereStripped = featuresWereStripped = false;
+    }
+
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
 
@@ -5107,8 +5111,12 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-  _emberMetalCore.default.merge = _emberMetalMerge.default;
+  if (true) {
+    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  } else {
+    _emberMetalCore.default.merge = _emberMetalMerge.default;
+  }
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -5319,10 +5327,13 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
   }
 
   var flaggedInstrument;
-
-  exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
-    return callback();
-  };
+  if (false) {
+    exports.flaggedInstrument = flaggedInstrument = instrument;
+  } else {
+    exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
+      return callback();
+    };
+  }
   exports.flaggedInstrument = flaggedInstrument;
 
   function withFinalizer(callback, finalizer, payload, binding) {
@@ -5688,6 +5699,12 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
       }
     }
   };
+
+  if (false) {
+    Libraries.prototype.isRegistered = function (name) {
+      return !!this._getLibraryByName(name);
+    };
+  }
 
   exports.default = Libraries;
 });
@@ -8251,18 +8268,20 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
 
     if (desc instanceof Descriptor) {
       value = desc;
-
-      if (watching) {
-        Object.defineProperty(obj, keyName, {
-          configurable: true,
-          enumerable: true,
-          writable: true,
-          value: value
-        });
+      if (true) {
+        if (watching) {
+          Object.defineProperty(obj, keyName, {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: value
+          });
+        } else {
+          obj[keyName] = value;
+        }
       } else {
         obj[keyName] = value;
       }
-
       if (desc.setup) {
         desc.setup(obj, keyName);
       }
@@ -8270,20 +8289,24 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
       if (desc == null) {
         value = data;
 
-        if (watching) {
-          meta.writeValues(keyName, data);
+        if (true) {
+          if (watching) {
+            meta.writeValues(keyName, data);
 
-          var defaultDescriptor = {
-            configurable: true,
-            enumerable: true,
-            set: MANDATORY_SETTER_FUNCTION(keyName),
-            get: DEFAULT_GETTER_FUNCTION(keyName)
-          };
+            var defaultDescriptor = {
+              configurable: true,
+              enumerable: true,
+              set: MANDATORY_SETTER_FUNCTION(keyName),
+              get: DEFAULT_GETTER_FUNCTION(keyName)
+            };
 
-          if (REDEFINE_SUPPORTED) {
-            Object.defineProperty(obj, keyName, defaultDescriptor);
+            if (REDEFINE_SUPPORTED) {
+              Object.defineProperty(obj, keyName, defaultDescriptor);
+            } else {
+              handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
+            }
           } else {
-            handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
+            obj[keyName] = data;
           }
         } else {
           obj[keyName] = data;
@@ -8804,18 +8827,21 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
         if (value !== currentValue) {
           _emberMetalProperty_events.propertyWillChange(obj, keyName);
 
-          if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
-            _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
-          } else {
-              var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-              var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
-              if (isMandatorySetter) {
-                meta.writeValues(keyName, value);
-              } else {
-                obj[keyName] = value;
+          if (true) {
+            if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
+              _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
+            } else {
+                var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+                var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+                if (isMandatorySetter) {
+                  meta.writeValues(keyName, value);
+                } else {
+                  obj[keyName] = value;
+                }
               }
-            }
-
+          } else {
+            obj[keyName] = value;
+          }
           _emberMetalProperty_events.propertyDidChange(obj, keyName);
         }
       } else {
@@ -11322,47 +11348,51 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.willWatchProperty(keyName);
       }
 
-      // NOTE: this is dropped for prod + minified builds
-      handleMandatorySetter(m, obj, keyName);
+      if (true) {
+        // NOTE: this is dropped for prod + minified builds
+        handleMandatorySetter(m, obj, keyName);
+      }
     } else {
       m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
     }
   }
 
-  // Future traveler, although this code looks scary. It merely exists in
-  // development to aid in development asertions. Production builds of
-  // ember strip this entire block out
-  handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-    var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-    var configurable = descriptor ? descriptor.configurable : true;
-    var isWritable = descriptor ? descriptor.writable : true;
-    var hasValue = descriptor ? 'value' in descriptor : true;
-    var possibleDesc = descriptor && descriptor.value;
-    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+  if (true) {
+    // Future traveler, although this code looks scary. It merely exists in
+    // development to aid in development asertions. Production builds of
+    // ember strip this entire block out
+    handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+      var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+      var configurable = descriptor ? descriptor.configurable : true;
+      var isWritable = descriptor ? descriptor.writable : true;
+      var hasValue = descriptor ? 'value' in descriptor : true;
+      var possibleDesc = descriptor && descriptor.value;
+      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    if (isDescriptor) {
-      return;
-    }
-
-    // this x in Y deopts, so keeping it in this function is better;
-    if (configurable && isWritable && hasValue && keyName in obj) {
-      var desc = {
-        configurable: true,
-        enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-        set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
-        get: undefined
-      };
-
-      if (Object.prototype.hasOwnProperty.call(obj, keyName)) {
-        m.writeValues(keyName, obj[keyName]);
-        desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
-      } else {
-        desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
+      if (isDescriptor) {
+        return;
       }
 
-      Object.defineProperty(obj, keyName, desc);
-    }
-  };
+      // this x in Y deopts, so keeping it in this function is better;
+      if (configurable && isWritable && hasValue && keyName in obj) {
+        var desc = {
+          configurable: true,
+          enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
+          set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
+          get: undefined
+        };
+
+        if (Object.prototype.hasOwnProperty.call(obj, keyName)) {
+          m.writeValues(keyName, obj[keyName]);
+          desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
+        } else {
+          desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
+        }
+
+        Object.defineProperty(obj, keyName, desc);
+      }
+    };
+  }
 
   function unwatchKey(obj, keyName, meta) {
     var m = meta || _emberMetalMeta.meta(obj);
@@ -11381,28 +11411,30 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         obj.didUnwatchProperty(keyName);
       }
 
-      // It is true, the following code looks quite WAT. But have no fear, It
-      // exists purely to improve development ergonomics and is removed from
-      // ember.min.js and ember.prod.js builds.
-      //
-      // Some further context: Once a property is watched by ember, bypassing `set`
-      // for mutation, will bypass observation. This code exists to assert when
-      // that occurs, and attempt to provide more helpful feedback. The alternative
-      // is tricky to debug partially observable properties.
-      if (!desc && keyName in obj) {
-        var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+      if (true) {
+        // It is true, the following code looks quite WAT. But have no fear, It
+        // exists purely to improve development ergonomics and is removed from
+        // ember.min.js and ember.prod.js builds.
+        //
+        // Some further context: Once a property is watched by ember, bypassing `set`
+        // for mutation, will bypass observation. This code exists to assert when
+        // that occurs, and attempt to provide more helpful feedback. The alternative
+        // is tricky to debug partially observable properties.
+        if (!desc && keyName in obj) {
+          var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
 
-        if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
-          if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
-            delete obj[keyName];
-          } else {
-            Object.defineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-              writable: true,
-              value: m.peekValues(keyName)
-            });
-            m.deleteFromValues(keyName);
+          if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
+            if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
+              delete obj[keyName];
+            } else {
+              Object.defineProperty(obj, keyName, {
+                configurable: true,
+                enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
+                writable: true,
+                value: m.peekValues(keyName)
+              });
+              m.deleteFromValues(keyName);
+            }
           }
         }
       }
@@ -12771,17 +12803,29 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/featur
   */
 
   exports.default = function (templateString, options) {
-    if (!compile && _require.has('htmlbars-compiler/compiler')) {
-      compile = _require.default('htmlbars-compiler/compiler').compile;
+    if (false) {
+      if (!compile && _require.has('glimmer-compiler')) {
+        compile = _require.default('glimmer-compiler').compileSpec;
+      }
+
+      if (!compile) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
+
+      return _emberTemplateCompilerSystemTemplate.default(compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
+    } else {
+      if (!compile && _require.has('htmlbars-compiler/compiler')) {
+        compile = _require.default('htmlbars-compiler/compiler').compile;
+      }
+
+      if (!compile) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
+
+      var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+
+      return _emberTemplateCompilerSystemTemplate.default(templateSpec);
     }
-
-    if (!compile) {
-      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-    }
-
-    var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
-
-    return _emberTemplateCompilerSystemTemplate.default(templateSpec);
   };
 });
 enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalAssign, _emberTemplateCompilerPlugins) {
@@ -12916,19 +12960,37 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/fea
   */
 
   exports.default = function (templateString, options) {
-    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-    }
+    if (false) {
+      if (!compileSpec && _require.has('glimmer-compiler')) {
+        compileSpec = _require.default('glimmer-compiler').compileSpec;
+      }
 
-    if (!compileSpec) {
-      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-    }
+      if (!compileSpec) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
 
-    return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+      return JSON.stringify(compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
+    } else {
+      if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
+        compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
+      }
+
+      if (!compileSpec) {
+        throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
+      }
+
+      return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+    }
   };
 });
-enifed('ember-template-compiler/system/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require2) {
+enifed('ember-template-compiler/system/template', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require3) {
   'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   /**
   @module ember
@@ -12946,20 +13008,86 @@ enifed('ember-template-compiler/system/template', ['exports', 'ember-metal/featu
 
   var template = undefined;
 
-  var _require = _require2.default('htmlbars-runtime/hooks');
+  if (false) {
+    (function () {
+      var _require = _require3.default('glimmer-runtime');
 
-  var wrap = _require.wrap;
+      var Template = _require.Template;
 
-  template = function (templateSpec) {
-    if (!templateSpec.render) {
-      templateSpec = wrap(templateSpec);
-    }
+      var Wrapper = (function () {
+        Wrapper.create = function create(options) {
+          return new this(options);
+        };
 
-    templateSpec.isTop = true;
-    templateSpec.isMethod = false;
+        function Wrapper(_ref) {
+          var env = _ref.env;
 
-    return templateSpec;
-  };
+          _classCallCheck(this, Wrapper);
+
+          this._entryPoint = null;
+          this._layout = null;
+          this.env = env;
+        }
+
+        Wrapper.prototype.asEntryPoint = function asEntryPoint() {
+          if (!this._entryPoint) {
+            var spec = this.spec;
+            var env = this.env;
+
+            this._entryPoint = Template.fromSpec(spec, env);
+          }
+
+          return this._entryPoint;
+        };
+
+        Wrapper.prototype.asLayout = function asLayout() {
+          if (!this._layout) {
+            var spec = this.spec;
+            var env = this.env;
+
+            this._layout = Template.layoutFromSpec(spec, env);
+          }
+
+          return this._layout;
+        };
+
+        return Wrapper;
+      })();
+
+      template = function (json) {
+        return (function (_Wrapper) {
+          _inherits(_class, _Wrapper);
+
+          function _class(options) {
+            _classCallCheck(this, _class);
+
+            _Wrapper.call(this, options);
+            this.spec = JSON.parse(json);
+          }
+
+          return _class;
+        })(Wrapper);
+      };
+    })();
+  } else {
+    (function () {
+      var _require2 = _require3.default('htmlbars-runtime/hooks');
+
+      var wrap = _require2.wrap;
+
+      template = function (templateSpec) {
+        if (!templateSpec.render) {
+          templateSpec = wrap(templateSpec);
+        }
+
+        templateSpec.isTop = true;
+        templateSpec.isMethod = false;
+
+        return templateSpec;
+      };
+    })();
+  }
+
   exports.default = template;
 });
 enifed("htmlbars-compiler/compiler", ["exports", "htmlbars-syntax/parser", "htmlbars-compiler/template-compiler", "htmlbars-runtime/hooks", "htmlbars-runtime/render"], function (exports, _htmlbarsSyntaxParser, _htmlbarsCompilerTemplateCompiler, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender) {

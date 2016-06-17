@@ -486,6 +486,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
+    if (false) {
+      exports.featuresWereStripped = featuresWereStripped = false;
+    }
+
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, _emberMetalFeatures.KNOWN_FEATURES, featuresWereStripped);
 
@@ -756,95 +760,122 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
 
   var keyboardEventTypes, mouseEventTypes, buildKeyboardEvent, buildMouseEvent, buildBasicEvent, fireEvent, focus;
 
-  var defaultEventOptions = { canBubble: true, cancelable: true };
-  keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
-  mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
+  if (true) {
+    (function () {
+      var defaultEventOptions = { canBubble: true, cancelable: true };
+      keyboardEventTypes = ['keydown', 'keypress', 'keyup'];
+      mouseEventTypes = ['click', 'mousedown', 'mouseup', 'dblclick', 'mouseenter', 'mouseleave', 'mousemove', 'mouseout', 'mouseover'];
 
-  buildKeyboardEvent = function buildKeyboardEvent(type) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      buildKeyboardEvent = function buildKeyboardEvent(type) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    var event = undefined;
-    try {
-      event = document.createEvent('KeyEvents');
-      var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
-      event.initKeyEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.keyCode, eventOpts.charCode);
-    } catch (e) {
-      event = buildBasicEvent(type, options);
-    }
-    return event;
-  };
-
-  buildMouseEvent = function buildMouseEvent(type) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    var event = undefined;
-    try {
-      event = document.createEvent('MouseEvents');
-      var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
-      event.initMouseEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.detail, eventOpts.screenX, eventOpts.screenY, eventOpts.clientX, eventOpts.clientY, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.button, eventOpts.relatedTarget);
-    } catch (e) {
-      event = buildBasicEvent(type, options);
-    }
-    return event;
-  };
-
-  buildBasicEvent = function buildBasicEvent(type) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-    var event = document.createEvent('Events');
-    event.initEvent(type, true, true);
-    _emberViewsSystemJquery.default.extend(event, options);
-    return event;
-  };
-
-  fireEvent = function fireEvent(element, type) {
-    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    if (!element) {
-      return;
-    }
-    var event = undefined;
-    if (keyboardEventTypes.indexOf(type) > -1) {
-      event = buildKeyboardEvent(type, options);
-    } else if (mouseEventTypes.indexOf(type) > -1) {
-      var rect = element.getBoundingClientRect();
-      var x = rect.left + 1;
-      var y = rect.top + 1;
-      var simulatedCoordinates = {
-        screenX: x + 5,
-        screenY: y + 95,
-        clientX: x,
-        clientY: y
+        var event = undefined;
+        try {
+          event = document.createEvent('KeyEvents');
+          var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
+          event.initKeyEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.keyCode, eventOpts.charCode);
+        } catch (e) {
+          event = buildBasicEvent(type, options);
+        }
+        return event;
       };
-      event = buildMouseEvent(type, _emberViewsSystemJquery.default.extend(simulatedCoordinates, options));
-    } else {
-      event = buildBasicEvent(type, options);
-    }
-    element.dispatchEvent(event);
-  };
 
-  focus = function focus(el) {
-    if (!el) {
-      return;
-    }
-    var $el = _emberViewsSystemJquery.default(el);
-    if ($el.is(':input, [contenteditable=true]')) {
-      var type = $el.prop('type');
-      if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-        _emberMetalRun_loop.default(null, function () {
-          // Firefox does not trigger the `focusin` event if the window
-          // does not have focus. If the document doesn't have focus just
-          // use trigger('focusin') instead.
+      buildMouseEvent = function buildMouseEvent(type) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-          if (!document.hasFocus || document.hasFocus()) {
-            el.focus();
-          } else {
-            $el.trigger('focusin');
+        var event = undefined;
+        try {
+          event = document.createEvent('MouseEvents');
+          var eventOpts = _emberViewsSystemJquery.default.extend({}, defaultEventOptions, options);
+          event.initMouseEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.detail, eventOpts.screenX, eventOpts.screenY, eventOpts.clientX, eventOpts.clientY, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.button, eventOpts.relatedTarget);
+        } catch (e) {
+          event = buildBasicEvent(type, options);
+        }
+        return event;
+      };
+
+      buildBasicEvent = function buildBasicEvent(type) {
+        var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+        var event = document.createEvent('Events');
+        event.initEvent(type, true, true);
+        _emberViewsSystemJquery.default.extend(event, options);
+        return event;
+      };
+
+      fireEvent = function fireEvent(element, type) {
+        var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+        if (!element) {
+          return;
+        }
+        var event = undefined;
+        if (keyboardEventTypes.indexOf(type) > -1) {
+          event = buildKeyboardEvent(type, options);
+        } else if (mouseEventTypes.indexOf(type) > -1) {
+          var rect = element.getBoundingClientRect();
+          var x = rect.left + 1;
+          var y = rect.top + 1;
+          var simulatedCoordinates = {
+            screenX: x + 5,
+            screenY: y + 95,
+            clientX: x,
+            clientY: y
+          };
+          event = buildMouseEvent(type, _emberViewsSystemJquery.default.extend(simulatedCoordinates, options));
+        } else {
+          event = buildBasicEvent(type, options);
+        }
+        element.dispatchEvent(event);
+      };
+
+      focus = function focus(el) {
+        if (!el) {
+          return;
+        }
+        var $el = _emberViewsSystemJquery.default(el);
+        if ($el.is(':input, [contenteditable=true]')) {
+          var type = $el.prop('type');
+          if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
+            _emberMetalRun_loop.default(null, function () {
+              // Firefox does not trigger the `focusin` event if the window
+              // does not have focus. If the document doesn't have focus just
+              // use trigger('focusin') instead.
+
+              if (!document.hasFocus || document.hasFocus()) {
+                el.focus();
+              } else {
+                $el.trigger('focusin');
+              }
+            });
           }
-        });
+        }
+      };
+    })();
+  } else {
+    focus = function focus(el) {
+      if (el && el.is(':input, [contenteditable=true]')) {
+        var type = el.prop('type');
+        if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
+          _emberMetalRun_loop.default(el, function () {
+            // Firefox does not trigger the `focusin` event if the window
+            // does not have focus. If the document doesn't have focus just
+            // use trigger('focusin') instead.
+            if (!document.hasFocus || document.hasFocus()) {
+              this.focus();
+            } else {
+              this.trigger('focusin');
+            }
+          });
+        }
       }
-    }
-  };
+    };
+
+    fireEvent = function fireEvent(element, type, options) {
+      var event = _emberViewsSystemJquery.default.Event(type, options);
+      _emberViewsSystemJquery.default(element).trigger(event);
+    };
+  }
 
   function currentRouteName(app) {
     var routingService = app.__container__.lookup('service:-routing');
@@ -1284,10 +1315,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   */
   asyncHelper('triggerEvent', triggerEvent);
 });
-
-// Firefox does not trigger the `focusin` event if the window
-// does not have focus. If the document doesn't have focus just
-// use trigger('focusin') instead.
 enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
   'use strict';
 
