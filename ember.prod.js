@@ -1008,13 +1008,10 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   var flaggedInstrument;
-  if (false) {
-    exports.flaggedInstrument = flaggedInstrument = instrument;
-  } else {
-    exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
-      return callback();
-    };
-  }
+
+  exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
+    return callback();
+  };
   exports.flaggedInstrument = flaggedInstrument;
 
   function withFinalizer(callback, finalizer, payload, binding) {
@@ -1421,7 +1418,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
-  var fnToString = Function.prototype.toString;
 
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
@@ -1430,7 +1426,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
-        return HAS_SUPER_PATTERN.test(fnToString.call(func));
+        return HAS_SUPER_PATTERN.test(func.toString());
       };
     }
 
@@ -1477,8 +1473,32 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function _wrap(func, superFunc) {
     function superWrapper() {
       var orig = this._super;
+      var length = arguments.length;
+      var ret = undefined;
       this._super = superFunc;
-      var ret = func.apply(this, arguments);
+      switch (length) {
+        case 0:
+          ret = func.call(this);break;
+        case 1:
+          ret = func.call(this, arguments[0]);break;
+        case 2:
+          ret = func.call(this, arguments[0], arguments[1]);break;
+        case 3:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2]);break;
+        case 4:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3]);break;
+        case 5:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);break;
+        default:
+          // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
+          // we may want to keep this around till this ages out on mobile
+          var args = new Array(length);
+          for (var x = 0; x < length; x++) {
+            args[x] = arguments[x];
+          }
+          ret = func.apply(this, args);
+          break;
+      }
       this._super = orig;
       return ret;
     }
@@ -3585,20 +3605,9 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
     if (desc instanceof Descriptor) {
       value = desc;
-      if (false) {
-        if (watching) {
-          Object.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: value
-          });
-        } else {
-          obj[keyName] = value;
-        }
-      } else {
-        obj[keyName] = value;
-      }
+
+      obj[keyName] = value;
+
       if (desc.setup) {
         desc.setup(obj, keyName);
       }
@@ -3606,28 +3615,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if (desc == null) {
         value = data;
 
-        if (false) {
-          if (watching) {
-            meta.writeValues(keyName, data);
-
-            var defaultDescriptor = {
-              configurable: true,
-              enumerable: true,
-              set: MANDATORY_SETTER_FUNCTION(keyName),
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            };
-
-            if (REDEFINE_SUPPORTED) {
-              Object.defineProperty(obj, keyName, defaultDescriptor);
-            } else {
-              handleBrokenPhantomDefineProperty(obj, keyName, defaultDescriptor);
-            }
-          } else {
-            obj[keyName] = data;
-          }
-        } else {
-          obj[keyName] = data;
-        }
+        obj[keyName] = data;
       } else {
         value = desc;
 
@@ -3765,21 +3753,8 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         if (value !== currentValue) {
           _emberMetalProperty_events.propertyWillChange(obj, keyName);
 
-          if (false) {
-            if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
-              _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
-            } else {
-                var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-                var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
-                if (isMandatorySetter) {
-                  meta.writeValues(keyName, value);
-                } else {
-                  obj[keyName] = value;
-                }
-              }
-          } else {
-            obj[keyName] = value;
-          }
+          obj[keyName] = value;
+
           _emberMetalProperty_events.propertyDidChange(obj, keyName);
         }
       } else {
@@ -4455,51 +4430,9 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if ('function' === typeof obj.willWatchProperty) {
         obj.willWatchProperty(keyName);
       }
-
-      if (false) {
-        // NOTE: this is dropped for prod + minified builds
-        handleMandatorySetter(m, obj, keyName);
-      }
     } else {
       m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
     }
-  }
-
-  if (false) {
-    // Future traveler, although this code looks scary. It merely exists in
-    // development to aid in development asertions. Production builds of
-    // ember strip this entire block out
-    handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-      var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-      var configurable = descriptor ? descriptor.configurable : true;
-      var isWritable = descriptor ? descriptor.writable : true;
-      var hasValue = descriptor ? 'value' in descriptor : true;
-      var possibleDesc = descriptor && descriptor.value;
-      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-      if (isDescriptor) {
-        return;
-      }
-
-      // this x in Y deopts, so keeping it in this function is better;
-      if (configurable && isWritable && hasValue && keyName in obj) {
-        var desc = {
-          configurable: true,
-          enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-          set: _emberMetalProperties.MANDATORY_SETTER_FUNCTION(keyName),
-          get: undefined
-        };
-
-        if (Object.prototype.hasOwnProperty.call(obj, keyName)) {
-          m.writeValues(keyName, obj[keyName]);
-          desc.get = _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName);
-        } else {
-          desc.get = _emberMetalProperties.INHERITING_GETTER_FUNCTION(keyName);
-        }
-
-        Object.defineProperty(obj, keyName, desc);
-      }
-    };
   }
 
   function unwatchKey(obj, keyName, meta) {
@@ -4517,34 +4450,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
       if ('function' === typeof obj.didUnwatchProperty) {
         obj.didUnwatchProperty(keyName);
-      }
-
-      if (false) {
-        // It is true, the following code looks quite WAT. But have no fear, It
-        // exists purely to improve development ergonomics and is removed from
-        // ember.min.js and ember.prod.js builds.
-        //
-        // Some further context: Once a property is watched by ember, bypassing `set`
-        // for mutation, will bypass observation. This code exists to assert when
-        // that occurs, and attempt to provide more helpful feedback. The alternative
-        // is tricky to debug partially observable properties.
-        if (!desc && keyName in obj) {
-          var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
-
-          if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
-            if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
-              delete obj[keyName];
-            } else {
-              Object.defineProperty(obj, keyName, {
-                configurable: true,
-                enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-                writable: true,
-                value: m.peekValues(keyName)
-              });
-              m.deleteFromValues(keyName);
-            }
-          }
-        }
       }
     } else if (count > 1) {
       m.writeWatching(keyName, count - 1);
@@ -10720,12 +10625,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     }
   };
 
-  if (false) {
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-  }
-
   exports.default = Libraries;
 })(Em._e[51],Em._e[1],Em._e[4]);
 (function (exports, _emberMetalIs_empty) {
@@ -10966,12 +10865,8 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  if (true) {
-    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  } else {
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  }
+  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -12048,37 +11943,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     }
   });
 
-  if (false) {
-    Enumerable.reopen({
-      /**
-        Returns a new enumerable that contains only items containing a unique property value.
-        The default implementation returns an array regardless of the receiver type.
-         ```javascript
-        var arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
-        arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
-        ```
-         @method uniqBy
-        @return {Ember.Enumerable}
-        @public
-      */
-
-      uniqBy: function (key) {
-        var ret = emberA();
-        var seen = new _emberMetalEmpty_object.default();
-
-        this.forEach(function (item) {
-          var guid = _emberMetalUtils.guidFor(_emberMetalProperty_get.get(item, key));
-          if (!(guid in seen)) {
-            seen[guid] = true;
-            ret.push(item);
-          }
-        });
-
-        return ret;
-      }
-    });
-  }
-
   exports.default = Enumerable;
 })(Em._e[56],Em._e[15],Em._e[22],Em._e[50],Em._e[7],Em._e[32],Em._e[9],Em._e[4],Em._e[19],Em._e[16],Em._e[68],Em.__loader.require);
 (function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalObserver, _emberMetalProperty_events, _emberMetalEmpty_object, _emberRuntimeMixinsArray) {
@@ -12988,11 +12852,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (false) {
-                  _emberMetalProperties.defineProperty(this, keyName, null, value); // setup mandatory setter
-                } else {
-                    this[keyName] = value;
-                  }
+                this[keyName] = value;
               }
             }
           }
@@ -13445,6 +13305,31 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
+  };
+
+  function injectedPropertyAssertion() {}
+
+  /**
+    Returns a hash of property names and container names that injected
+    properties will lookup on the container lazily.
+  
+    @method _lazyInjections
+    @return {Object} Hash of all lazy injected property keys to container names
+    @private
+  */
+  ClassMixinProps._lazyInjections = function () {
+    var injections = {};
+    var proto = this.proto();
+    var key, desc;
+
+    for (key in proto) {
+      desc = proto[key];
+      if (desc instanceof _emberMetalInjected_property.default) {
+        injections[key] = desc.type + ':' + (desc.name || key);
+      }
+    }
+
+    return injections;
   };
 
   var ClassMixin = _emberMetalMixin.Mixin.create(ClassMixinProps);
@@ -14922,6 +14807,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     this.owner = options && options.owner ? options.owner : null;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
+    this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
     this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
     this[CONTAINER_OVERRIDE] = undefined;
   }
@@ -14955,6 +14841,13 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
      @type InheritingDict
      */
     factoryCache: null,
+
+    /**
+     @private
+     @property validationCache
+     @type InheritingDict
+     */
+    validationCache: null,
 
     /**
      Given a fullName return a corresponding instance.
@@ -15056,14 +14949,12 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function lookup(container, fullName) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-    if (true) {
-      if (options.source) {
-        fullName = container.registry.expandLocalLookup(fullName, options);
+    if (options.source) {
+      fullName = container.registry.expandLocalLookup(fullName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
       }
     }
 
@@ -15125,14 +15016,12 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
     var registry = container.registry;
 
-    if (true) {
-      if (options.source) {
-        fullName = registry.expandLocalLookup(fullName, options);
+    if (options.source) {
+      fullName = registry.expandLocalLookup(fullName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!fullName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
       }
     }
 
@@ -15206,6 +15095,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   function instantiate(container, fullName) {
     var factory = factoryFor(container, fullName);
+    var lazyInjections, validationCache;
 
     if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
@@ -15215,6 +15105,10 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if (typeof factory.create !== 'function') {
         throw new Error('Failed to create an instance of \'' + fullName + '\'. ' + 'Most likely an improperly defined class or an invalid module export.');
       }
+
+      validationCache = container.validationCache;
+
+      validationCache[fullName] = true;
 
       var obj = undefined;
 
@@ -15619,9 +15513,8 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       }
 
       var source = undefined;
-      if (true) {
-        source = options && options.source && this.normalize(options.source);
-      }
+
+      source = options && options.source && this.normalize(options.source);
 
       return has(this, this.normalize(fullName), source);
     },
@@ -15990,36 +15883,34 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
     };
   }
 
-  if (true) {
-    /**
-      Given a fullName and a source fullName returns the fully resolved
-      fullName. Used to allow for local lookup.
-       ```javascript
-      var registry = new Registry();
-       // the twitter factory is added to the module system
-      registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-      ```
-       @private
-      @method expandLocalLookup
-      @param {String} fullName
-      @param {Object} [options]
-      @param {String} [options.source] the fullname of the request source (used for local lookups)
-      @return {String} fullName
-    */
-    Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
-      if (this.resolver && this.resolver.expandLocalLookup) {
+  /**
+    Given a fullName and a source fullName returns the fully resolved
+    fullName. Used to allow for local lookup.
+     ```javascript
+    var registry = new Registry();
+     // the twitter factory is added to the module system
+    registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
+    ```
+     @private
+    @method expandLocalLookup
+    @param {String} fullName
+    @param {Object} [options]
+    @param {String} [options.source] the fullname of the request source (used for local lookups)
+    @return {String} fullName
+  */
+  Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
+    if (this.resolver && this.resolver.expandLocalLookup) {
 
-        var normalizedFullName = this.normalize(fullName);
-        var normalizedSource = this.normalize(options.source);
+      var normalizedFullName = this.normalize(fullName);
+      var normalizedSource = this.normalize(options.source);
 
-        return expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback) {
-        return this.fallback.expandLocalLookup(fullName, options);
-      } else {
-        return null;
-      }
-    };
-  }
+      return expandLocalLookup(this, normalizedFullName, normalizedSource);
+    } else if (this.fallback) {
+      return this.fallback.expandLocalLookup(fullName, options);
+    } else {
+      return null;
+    }
+  };
 
   function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
@@ -16041,16 +15932,14 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   }
 
   function resolve(registry, normalizedName, options) {
-    if (true) {
-      if (options && options.source) {
-        // when `source` is provided expand normalizedName
-        // and source into the full normalizedName
-        normalizedName = registry.expandLocalLookup(normalizedName, options);
+    if (options && options.source) {
+      // when `source` is provided expand normalizedName
+      // and source into the full normalizedName
+      normalizedName = registry.expandLocalLookup(normalizedName, options);
 
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
-        }
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!normalizedName) {
+        return;
       }
     }
 
@@ -22547,10 +22436,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   EmComputed.filter = _emberRuntimeComputedReduce_computed_macros.filter;
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
-
-  if (false) {
-    EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
-  }
 
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
@@ -37496,13 +37381,9 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
           // into its outlets, which won't render anywhere. All of this
           // statefulness should get the machete in 2.0.
           this.connections[i] = {
-            owner: connection.owner,
             into: connection.into,
             outlet: connection.outlet,
-            name: connection.name,
-            controller: undefined,
-            template: undefined,
-            ViewClass: undefined
+            name: connection.name
           };
           _emberMetalRun_loop.default.once(this.router, '_setOutlets');
         }
@@ -39870,14 +39751,8 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   exports.default = EmberDOMHelper;
 })(Em._e[230],Em._e[227],Em._e[228],Em._e[229]);
-(function (exports, _emberMetalFeatures, _require3) {
+(function (exports, _emberMetalFeatures, _require2) {
   'use strict';
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   /**
   @module ember
@@ -39895,86 +39770,20 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   var template = undefined;
 
-  if (false) {
-    (function () {
-      var _require = _require3.default('glimmer-runtime');
+  var _require = _require2.default('htmlbars-runtime/hooks');
 
-      var Template = _require.Template;
+  var wrap = _require.wrap;
 
-      var Wrapper = (function () {
-        Wrapper.create = function create(options) {
-          return new this(options);
-        };
+  template = function (templateSpec) {
+    if (!templateSpec.render) {
+      templateSpec = wrap(templateSpec);
+    }
 
-        function Wrapper(_ref) {
-          var env = _ref.env;
+    templateSpec.isTop = true;
+    templateSpec.isMethod = false;
 
-          _classCallCheck(this, Wrapper);
-
-          this._entryPoint = null;
-          this._layout = null;
-          this.env = env;
-        }
-
-        Wrapper.prototype.asEntryPoint = function asEntryPoint() {
-          if (!this._entryPoint) {
-            var spec = this.spec;
-            var env = this.env;
-
-            this._entryPoint = Template.fromSpec(spec, env);
-          }
-
-          return this._entryPoint;
-        };
-
-        Wrapper.prototype.asLayout = function asLayout() {
-          if (!this._layout) {
-            var spec = this.spec;
-            var env = this.env;
-
-            this._layout = Template.layoutFromSpec(spec, env);
-          }
-
-          return this._layout;
-        };
-
-        return Wrapper;
-      })();
-
-      template = function (json) {
-        return (function (_Wrapper) {
-          _inherits(_class, _Wrapper);
-
-          function _class(options) {
-            _classCallCheck(this, _class);
-
-            _Wrapper.call(this, options);
-            this.spec = JSON.parse(json);
-          }
-
-          return _class;
-        })(Wrapper);
-      };
-    })();
-  } else {
-    (function () {
-      var _require2 = _require3.default('htmlbars-runtime/hooks');
-
-      var wrap = _require2.wrap;
-
-      template = function (templateSpec) {
-        if (!templateSpec.render) {
-          templateSpec = wrap(templateSpec);
-        }
-
-        templateSpec.isTop = true;
-        templateSpec.isMethod = false;
-
-        return templateSpec;
-      };
-    })();
-  }
-
+    return templateSpec;
+  };
   exports.default = template;
 })(Em._e[231],Em._e[4],Em.__loader.require);
 (function (exports, _emberTemplateCompilerSystemTemplate) {
@@ -40908,15 +40717,13 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   function lookupComponent(owner, name, options) {
     var componentLookup = owner.lookup('component-lookup:main');
 
-    if (true) {
-      var source = options && options.source;
+    var source = options && options.source;
 
-      if (source) {
-        var localResult = lookupComponentPair(componentLookup, owner, name, options);
+    if (source) {
+      var localResult = lookupComponentPair(componentLookup, owner, name, options);
 
-        if (localResult.component || localResult.layout) {
-          return localResult;
-        }
+      if (localResult.component || localResult.layout) {
+        return localResult;
       }
     }
 
@@ -42261,9 +42068,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   'use strict';
 
   var layout = _emberHtmlbarsTemplatesLinkTo.default;
-  if (false) {
-    layout = _require.default('ember-glimmer/templates/link-to').default;
-  }
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -43180,7 +42984,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       this._super.apply(this, arguments);
 
       if (this[GLIMMER] === undefined) {
-        this[GLIMMER] = false;
+        this[GLIMMER] = _emberMetalFeatures.default('ember-glimmer');
       }
 
       this.buildRegistry();
@@ -44592,15 +44396,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.Resolver;
   _emberMetalCore.default.DefaultResolver = _emberApplicationSystemResolver.default;
 
-  if (false) {
-    _emberMetalCore.default.Engine = _emberApplicationSystemEngine.default;
-
-    // Expose `EngineInstance` and `ApplicationInstance` for easy overriding.
-    // Reanalyze whether to continue exposing these after feature flag is removed.
-    _emberMetalCore.default.EngineInstance = _emberApplicationSystemEngineInstance.default;
-    _emberMetalCore.default.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
-  }
-
   _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 })(Em._e[264],Em._e[2],Em._e[4],Em._e[87],Em._e[216],Em._e[263],Em._e[236],Em._e[262],Em._e[235]);
 (function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemString, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberApplicationSystemApplication, _containerOwner, _emberRuntimeMixinsArray) {
@@ -45261,27 +45056,15 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   */
 
   exports.default = function (templateString, options) {
-    if (false) {
-      if (!compileSpec && _require.has('glimmer-compiler')) {
-        compileSpec = _require.default('glimmer-compiler').compileSpec;
-      }
-
-      if (!compileSpec) {
-        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-      }
-
-      return JSON.stringify(compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
-    } else {
-      if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
-        compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
-      }
-
-      if (!compileSpec) {
-        throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-      }
-
-      return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+    if (!compileSpec && _require.has('htmlbars-compiler/compiler')) {
+      compileSpec = _require.default('htmlbars-compiler/compiler').compileSpec;
     }
+
+    if (!compileSpec) {
+      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
+    }
+
+    return compileSpec(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
   };
 })(Em._e[269],Em._e[4],Em.__loader.require,Em._e[268]);
 (function (exports, _emberMetalFeatures, _require, _emberTemplateCompilerSystemCompile_options, _emberTemplateCompilerSystemTemplate) {
@@ -45306,29 +45089,17 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
   */
 
   exports.default = function (templateString, options) {
-    if (false) {
-      if (!compile && _require.has('glimmer-compiler')) {
-        compile = _require.default('glimmer-compiler').compileSpec;
-      }
-
-      if (!compile) {
-        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-      }
-
-      return _emberTemplateCompilerSystemTemplate.default(compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options)));
-    } else {
-      if (!compile && _require.has('htmlbars-compiler/compiler')) {
-        compile = _require.default('htmlbars-compiler/compiler').compile;
-      }
-
-      if (!compile) {
-        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-      }
-
-      var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
-
-      return _emberTemplateCompilerSystemTemplate.default(templateSpec);
+    if (!compile && _require.has('htmlbars-compiler/compiler')) {
+      compile = _require.default('htmlbars-compiler/compiler').compile;
     }
+
+    if (!compile) {
+      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+    }
+
+    var templateSpec = compile(templateString, _emberTemplateCompilerSystemCompile_options.default(options));
+
+    return _emberTemplateCompilerSystemTemplate.default(templateSpec);
   };
 })(Em._e[270],Em._e[4],Em.__loader.require,Em._e[268],Em._e[231]);
 (function (exports) {
@@ -49189,20 +48960,16 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       if (hasComponentOrTemplate(owner, path)) {
         return true; // global component found
       } else {
-          if (true) {
-            var moduleName = env.meta && env.meta.moduleName;
+          var moduleName = env.meta && env.meta.moduleName;
 
-            if (!moduleName) {
-              // Without a source moduleName, we can not perform local lookups.
-              return false;
-            }
-
-            var options = { source: 'template:' + moduleName };
-
-            return hasComponentOrTemplate(owner, path, options);
-          } else {
+          if (!moduleName) {
+            // Without a source moduleName, we can not perform local lookups.
             return false;
           }
+
+          var options = { source: 'template:' + moduleName };
+
+          return hasComponentOrTemplate(owner, path, options);
         }
     }
   }
@@ -49318,12 +49085,11 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         layout = undefined;
     if (isDasherized || !isAngleBracket) {
       var options = {};
-      if (true) {
-        var moduleName = env.meta && env.meta.moduleName;
 
-        if (moduleName) {
-          options.source = 'template:' + moduleName;
-        }
+      var moduleName = env.meta && env.meta.moduleName;
+
+      if (moduleName) {
+        options.source = 'template:' + moduleName;
       }
 
       var result = _emberHtmlbarsUtilsLookupComponent.default(env.owner, tagName, options);
@@ -49589,9 +49355,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
 
   'use strict';
 
-  if (!false) {
-    _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0';
-  }
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.6.0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child route will render in
@@ -49698,10 +49462,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       }
 
       var Component;
-
-      if (false) {
-        Component = outletState.render.Component;
-      }
 
       var options;
       var attrs = {};

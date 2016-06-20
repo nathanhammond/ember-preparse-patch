@@ -39578,13 +39578,9 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
           // into its outlets, which won't render anywhere. All of this
           // statefulness should get the machete in 2.0.
           this.connections[i] = {
-            owner: connection.owner,
             into: connection.into,
             outlet: connection.outlet,
-            name: connection.name,
-            controller: undefined,
-            template: undefined,
-            ViewClass: undefined
+            name: connection.name
           };
           _emberMetalRun_loop.default.once(this.router, '_setOutlets');
         }
