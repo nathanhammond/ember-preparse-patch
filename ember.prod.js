@@ -32064,11 +32064,21 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         return false;
       }
 
+      var isDynamic = (this.type !== "static");
+      if (this.handler && !isDynamic) {
+        // Determine if maybe dynamic.
+        var current = this.parentNode;
+        while (current && !current.handler && !isDynamic) {
+          isDynamic = (current.type !== "static");
+          current = current.parentNode;
+        }
+      }
+
       if (this.handler) {
         handlers.push({
           handler: this.handler,
           params: params,
-          isDynamic: this.type !== "static"
+          isDynamic: isDynamic
         });
       }
 
