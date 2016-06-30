@@ -32084,10 +32084,6 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
         }
       }
 
-      // Once we get past this loop we should consider the node as "leaf."
-      // All of the child branches have been pruned.
-      isLeafNode = true;
-
       // If we're at a terminal node find out if we've consumed the entire path.
       if (isTerminalNode) {
         if (regexPieces) {
@@ -32115,7 +32111,7 @@ Em.__loader.define("rsvp/platform", ["exports"], function (exports) {
       }
 
       // `consumed` is false unless set above.
-      if (isLeafNode && !consumed) {
+      if (!consumed && (isLeafNode || !nextNode)) {
         if (this.handler) {
           handlers.pop();
         }
